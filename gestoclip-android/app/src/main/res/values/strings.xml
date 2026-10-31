@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">GestoClip</string>
+    <string name="accessibility_service_description">Permite a GestoClip copiar texto seleccionado, tomar una captura de pantalla cuando cierras el puño y pegar contenido cuando abres la palma.</string>
+</resources>

@@ -1,0 +1,22 @@
+# Build outputs
+**/bin/
+**/obj/
+**/build/
+**/.gradle/
+**/dist/
+**/ref/
+
+# IDE & OS
+.vs/
+.idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+local.properties
+Thumbs.db
+.DS_Store
+
+# Temporary & logs
+*.log
+*.tmp
