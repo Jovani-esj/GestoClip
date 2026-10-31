@@ -57,18 +57,23 @@ internal static class SelfInstaller
         var win = new Window
         {
             Title = "Instalador de GestoClip — Windows 11",
-            Width = 540,
-            Height = 420,
-            ResizeMode = ResizeMode.NoResize,
+            Width = 580,
+            MinWidth = 500,
+            MinHeight = 460,
+            SizeToContent = SizeToContent.Height,
+            ResizeMode = ResizeMode.CanResizeWithGrip,
             WindowStartupLocation = WindowStartupLocation.CenterScreen,
             Background = new SolidColorBrush(WpfColor.FromRgb(24, 24, 27)),
             Foreground = new SolidColorBrush(WpfColor.FromRgb(244, 244, 245)),
             FontFamily = new WpfFontFamily("Segoe UI Variable Display, Segoe UI")
         };
 
-        var root = new StackPanel { Margin = new Thickness(28, 24, 28, 24) };
+        var outerGrid = new Grid { Margin = new Thickness(28, 22, 28, 22) };
+        outerGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+        outerGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+        outerGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
 
-        var header = new StackPanel { Orientation = WpfOrientation.Horizontal, Margin = new Thickness(0, 0, 0, 18) };
+        var header = new StackPanel { Orientation = WpfOrientation.Horizontal, Margin = new Thickness(0, 0, 0, 16) };
         var badge = new Border
         {
             Width = 44, Height = 44, CornerRadius = new CornerRadius(12),
@@ -77,40 +82,94 @@ internal static class SelfInstaller
             Child = new TextBlock { Text = "🖐️", FontSize = 22, HorizontalAlignment = WpfHAlign.Center, VerticalAlignment = VerticalAlignment.Center }
         };
         var titles = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
-        titles.Children.Add(new TextBlock { Text = "Instalar GestoClip v1.0", FontSize = 20, FontWeight = FontWeights.Bold });
+        titles.Children.Add(new TextBlock { Text = "Instalar GestoClip v1.0.0", FontSize = 20, FontWeight = FontWeights.Bold });
         titles.Children.Add(new TextBlock { Text = "Portapapeles Universal por Gestos (Windows 11 ⇄ Android)", FontSize = 12.5, Foreground = new SolidColorBrush(WpfColor.FromRgb(161, 161, 170)) });
         header.Children.Add(badge);
         header.Children.Add(titles);
-        root.Children.Add(header);
+        Grid.SetRow(header, 0);
+        outerGrid.Children.Add(header);
 
+        var bodyStack = new StackPanel();
         var card = new Border
         {
             Background = new SolidColorBrush(WpfColor.FromRgb(32, 32, 38)),
+            BorderBrush = new SolidColorBrush(WpfColor.FromRgb(50, 50, 60)),
+            BorderThickness = new Thickness(1),
             CornerRadius = new CornerRadius(10),
-            Padding = new Thickness(16),
-            Margin = new Thickness(0, 0, 0, 16)
+            Padding = new Thickness(18, 16, 18, 16),
+            Margin = new Thickness(0, 0, 0, 14)
         };
         var opts = new StackPanel();
-        opts.Children.Add(new TextBlock { Text = $"Ruta de instalación: {InstallDir}", FontSize = 11.5, Foreground = new SolidColorBrush(WpfColor.FromRgb(161, 161, 170)), Margin = new Thickness(0, 0, 0, 10) });
+        opts.Children.Add(new TextBlock
+        {
+            Text = $"Ruta de instalación: {InstallDir}",
+            FontSize = 11.5,
+            TextWrapping = TextWrapping.Wrap,
+            Foreground = new SolidColorBrush(WpfColor.FromRgb(161, 161, 170)),
+            Margin = new Thickness(0, 0, 0, 12)
+        });
 
-        var cbDesktop = new WpfCheckBox { Content = "Crear acceso directo en el Escritorio", IsChecked = true, Margin = new Thickness(0, 4, 0, 4), FontSize = 13 };
-        var cbStartMenu = new WpfCheckBox { Content = "Agregar al Menú Inicio de Windows", IsChecked = true, Margin = new Thickness(0, 4, 0, 4), FontSize = 13 };
-        var cbAutostart = new WpfCheckBox { Content = "Iniciar automáticamente con Windows", IsChecked = true, Margin = new Thickness(0, 4, 0, 4), FontSize = 13 };
-        var cbLaunch = new WpfCheckBox { Content = "Abrir GestoClip al terminar la instalación", IsChecked = true, Margin = new Thickness(0, 4, 0, 4), FontSize = 13 };
+        var cbDesktop = new WpfCheckBox { Content = "Crear acceso directo en el Escritorio", IsChecked = true, Margin = new Thickness(0, 5, 0, 5), FontSize = 13.5, Foreground = new SolidColorBrush(WpfColor.FromRgb(244, 244, 245)) };
+        var cbStartMenu = new WpfCheckBox { Content = "Agregar al Menú Inicio de Windows", IsChecked = true, Margin = new Thickness(0, 5, 0, 5), FontSize = 13.5, Foreground = new SolidColorBrush(WpfColor.FromRgb(244, 244, 245)) };
+        var cbAutostart = new WpfCheckBox { Content = "Iniciar automáticamente con Windows", IsChecked = true, Margin = new Thickness(0, 5, 0, 5), FontSize = 13.5, Foreground = new SolidColorBrush(WpfColor.FromRgb(244, 244, 245)) };
+        var cbLaunch = new WpfCheckBox { Content = "Abrir GestoClip al terminar la instalación", IsChecked = true, Margin = new Thickness(0, 5, 0, 5), FontSize = 13.5, Foreground = new SolidColorBrush(WpfColor.FromRgb(244, 244, 245)) };
 
         opts.Children.Add(cbDesktop);
         opts.Children.Add(cbStartMenu);
         opts.Children.Add(cbAutostart);
         opts.Children.Add(cbLaunch);
         card.Child = opts;
-        root.Children.Add(card);
+        bodyStack.Children.Add(card);
 
-        var statusText = new TextBlock { Text = "Listo para instalar.", FontSize = 12.5, Foreground = new SolidColorBrush(WpfColor.FromRgb(212, 212, 216)), Margin = new Thickness(0, 0, 0, 14) };
-        root.Children.Add(statusText);
+        var statusText = new TextBlock
+        {
+            Text = "Listo para instalar (no requiere permisos de administrador).",
+            FontSize = 12.5,
+            TextWrapping = TextWrapping.Wrap,
+            Foreground = new SolidColorBrush(WpfColor.FromRgb(212, 212, 216)),
+            Margin = new Thickness(0, 0, 0, 16)
+        };
+        bodyStack.Children.Add(statusText);
 
-        var btnRow = new StackPanel { Orientation = WpfOrientation.Horizontal, HorizontalAlignment = WpfHAlign.Right };
-        var installBtn = new WpfButton { Content = "Instalar ahora", Padding = new Thickness(22, 9, 22, 9), FontWeight = FontWeights.SemiBold, FontSize = 13.5, Margin = new Thickness(0, 0, 10, 0) };
-        var cancelBtn = new WpfButton { Content = "Cancelar", Padding = new Thickness(16, 9, 16, 9), FontSize = 13.5 };
+        var scroll = new ScrollViewer
+        {
+            VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+            HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
+            Content = bodyStack
+        };
+        Grid.SetRow(scroll, 1);
+        outerGrid.Children.Add(scroll);
+
+        var btnRow = new StackPanel
+        {
+            Orientation = WpfOrientation.Horizontal,
+            HorizontalAlignment = WpfHAlign.Right,
+            Margin = new Thickness(0, 10, 0, 4)
+        };
+        var installBtn = new WpfButton
+        {
+            Content = "✓ Instalar ahora",
+            MinWidth = 155,
+            Height = 40,
+            Padding = new Thickness(20, 8, 20, 8),
+            FontWeight = FontWeights.SemiBold,
+            FontSize = 13.5,
+            Background = new SolidColorBrush(WpfColor.FromRgb(37, 99, 235)),
+            Foreground = new SolidColorBrush(WpfColor.FromRgb(255, 255, 255)),
+            BorderBrush = new SolidColorBrush(WpfColor.FromRgb(59, 130, 246)),
+            Margin = new Thickness(0, 0, 12, 0)
+        };
+        var cancelBtn = new WpfButton
+        {
+            Content = "Cancelar",
+            MinWidth = 110,
+            Height = 40,
+            Padding = new Thickness(16, 8, 16, 8),
+            FontSize = 13.5,
+            Background = new SolidColorBrush(WpfColor.FromRgb(45, 45, 53)),
+            Foreground = new SolidColorBrush(WpfColor.FromRgb(228, 228, 231)),
+            BorderBrush = new SolidColorBrush(WpfColor.FromRgb(63, 63, 70))
+        };
 
         cancelBtn.Click += (_, _) => win.Close();
         installBtn.Click += async (_, _) =>
@@ -137,9 +196,10 @@ internal static class SelfInstaller
 
         btnRow.Children.Add(installBtn);
         btnRow.Children.Add(cancelBtn);
-        root.Children.Add(btnRow);
+        Grid.SetRow(btnRow, 2);
+        outerGrid.Children.Add(btnRow);
 
-        win.Content = root;
+        win.Content = outerGrid;
         return win;
     }
 

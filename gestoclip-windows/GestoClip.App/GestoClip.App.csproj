@@ -8,6 +8,14 @@
     <Nullable>enable</Nullable>
     <RootNamespace>GestoClip.App</RootNamespace>
     <NoWarn>$(NoWarn);WPF0001</NoWarn>
+    <Version>1.0.0</Version>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+    <Product>GestoClip — Universal Gesture Clipboard</Product>
+    <Company>Jovani Emmanuel Sanchez de Jesus</Company>
+    <Authors>Jovani Emmanuel Sanchez de Jesus</Authors>
+    <Copyright>Copyright (c) 2026 Jovani Emmanuel Sanchez de Jesus</Copyright>
+    <Description>Portapapeles universal y transferencia por gestos en red local (Windows 11 y Android)</Description>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\GestoClip.Core\GestoClip.Core.csproj" />

@@ -19,9 +19,26 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        create("release") {
+            val ksFile = file("${System.getProperty("user.home")}/.gestoclip-keys/gestoclip-release.jks")
+            if (ksFile.exists()) {
+                storeFile = ksFile
+                storePassword = System.getenv("GESTOCLIP_KEYSTORE_PASS") ?: "GestoClip2026!"
+                keyAlias = "gestoclip"
+                keyPassword = System.getenv("GESTOCLIP_KEY_PASS") ?: "GestoClip2026!"
+                enableV1Signing = true
+                enableV2Signing = true
+                enableV3Signing = true
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
+            val ksFile = file("${System.getProperty("user.home")}/.gestoclip-keys/gestoclip-release.jks")
+            signingConfig = if (ksFile.exists()) signingConfigs.getByName("release") else signingConfigs.getByName("debug")
         }
     }
 

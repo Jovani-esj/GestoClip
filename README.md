@@ -16,12 +16,19 @@
 
 ---
 
-### 📥 Descargar Instaladores Directos (Listos para Usar)
+### 📥 [Descargar Instaladores Oficiales (GitHub Releases `v1.0.0`)](https://github.com/Jovani-esj/GestoClip/releases/latest)
 
-| Plataforma | Archivo de Instalación | Tamaño | Descripción |
-| :--- | :--- | :--- | :--- |
-| 🪟 **Windows 10 / 11 (x64)** | [**⬇️ Descargar `GestoClip-Setup.exe`**](https://github.com/Jovani-esj/GestoClip/raw/main/releases/GestoClip-Setup.exe) | ~98.8 MB | Instalador gráfico autocontenido (no requiere instalar .NET ni librerías adicionales). Crea accesos directos, desinstalador y arranque opcional con Windows. |
-| 🤖 **Android 9.0+ (ARM64/x86)** | [**⬇️ Descargar `GestoClip-Android.apk`**](https://github.com/Jovani-esj/GestoClip/raw/main/releases/GestoClip-Android.apk) | ~92.5 MB | Aplicación nativa con soporte para Botón Flotante, Quick Settings Tile, lectura de QR y capturas directas por Accesibilidad. |
+| Plataforma | Descarga Directa (GitHub Releases) | Tamaño | Firma Digital | Descripción |
+| :--- | :--- | :--- | :--- | :--- |
+| 🪟 **Windows 10 / 11 (x64)** | [**⬇️ `GestoClip-Setup.exe`**](https://github.com/Jovani-esj/GestoClip/releases/latest/download/GestoClip-Setup.exe) | ~98.8 MB | Authenticode SHA-256 | Instalador gráfico redimensionable y autocontenido (no requiere instalar .NET ni librerías adicionales). |
+| 🤖 **Android 9.0+ (ARM64/x86)** | [**⬇️ `GestoClip-Android.apk`**](https://github.com/Jovani-esj/GestoClip/releases/latest/download/GestoClip-Android.apk) | ~81.5 MB | APK Signing v1/v2/v3 | APK de producción firmada (`release`), compatible con actualizaciones automáticas vía **Obtainium**. |
+
+> 📱 **¿Usas [Obtainium](https://github.com/ImranR98/Obtainium) en Android para actualizar tus apps Open Source?**
+> Agrega directamente la URL de este repositorio en Obtainium:
+> ```text
+> https://github.com/Jovani-esj/GestoClip
+> ```
+> Obtainium detectará automáticamente cada nueva versión publicada en [**GitHub Releases**](https://github.com/Jovani-esj/GestoClip/releases) y verificará la firma SHA-256 del APK (`F6:5D:2E:1A:62:CA:C5:A6:CB:19:F9:AB:E6:BB:F3:AF:A8:BB:D9:BB:FB:BD:F8:12:86:F5:F1:E9:6F:51:15:85`).
 
 </div>
 
@@ -62,12 +69,14 @@ Pasar un fragmento de texto, una imagen recortada o una captura de pantalla entr
 ## 🚀 Guía de Instalación y Uso Rápido para Usuarios
 
 ### 1️⃣ Instalación en Windows 11
-1. Descarga [**`GestoClip-Setup.exe`**](https://github.com/Jovani-esj/GestoClip/raw/main/releases/GestoClip-Setup.exe) directamente desde este repositorio (o desde la carpeta [`releases/`](./releases)).
-2. Ejecuta el instalador, elige tus opciones (acceso directo en Escritorio e iniciar junto con Windows) y haz clic en **Instalar ahora**.
+1. Descarga [**`GestoClip-Setup.exe`**](https://github.com/Jovani-esj/GestoClip/releases/latest/download/GestoClip-Setup.exe) desde la sección oficial de [**GitHub Releases**](https://github.com/Jovani-esj/GestoClip/releases/latest) (también disponible en la carpeta [`releases/`](./releases)).
+   - *Nota sobre Windows Defender SmartScreen (ventana azul)*: Como GestoClip es software libre gratuito y no paga una suscripción comercial anual a una autoridad certificadora (CA EV), la primera vez que abras el instalador Windows puede mostrar *"Windows protegió su PC"*. Haz clic en **«Más información» → «Ejecutar de todas formas»**. El ejecutable está firmado con certificado de desarrollador SHA-256 y no requiere permisos de Administrador (se instala limpiamente en `%LocalAppData%\Programs\GestoClip`).
+2. Ejecuta el instalador, elige tus opciones (acceso directo en Escritorio e iniciar junto con Windows) y haz clic en **✓ Instalar ahora**.
 3. Al abrir **GestoClip**, ve a la pestaña **🔗 Emparejar por QR** para mostrar el código QR de vinculación en pantalla.
 
-### 2️⃣ Instalación en Android
-1. Descarga [**`GestoClip-Android.apk`**](https://github.com/Jovani-esj/GestoClip/raw/main/releases/GestoClip-Android.apk) en tu teléfono e instálalo.
+### 2️⃣ Instalación en Android (Directa o con Obtainium)
+1. **Opción A (Recomendada — Con [Obtainium](https://github.com/ImranR98/Obtainium))**: Abre Obtainium → *Añadir App* → pega `https://github.com/Jovani-esj/GestoClip` → toca *Añadir* e *Instalar*. Así recibirás actualizaciones automáticas desde GitHub sin pasar por tiendas comerciales.
+2. **Opción B (Descarga directa del APK)**: Entra desde tu navegador móvil a [**GitHub Releases (`v1.0.0`)**](https://github.com/Jovani-esj/GestoClip/releases/latest) y toca [**`GestoClip-Android.apk`**](https://github.com/Jovani-esj/GestoClip/releases/latest/download/GestoClip-Android.apk) para instalarlo.
 2. En la pantalla principal de **GestoClip Android**, concede los 3 permisos guiados:
    - **Cámara y Notificaciones** (para detectar gestos bajo demanda y escanear el QR).
    - **Superposición (Botón flotante)** (para tener el disparador rápido sobre cualquier app).
