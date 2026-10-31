@@ -1,0 +1,45 @@
+name: Release GestoClip
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+
+jobs:
+  publish-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Extract version from tag
+        id: ver
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release and attach binaries
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "GestoClip v${{ steps.ver.outputs.VERSION }} — Windows 11 & Android (Signed Release)"
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          body: |
+            ## ✋✊ GestoClip v${{ steps.ver.outputs.VERSION }} — Lanzamiento Oficial
+
+            Portapapeles universal y transferencia de capturas/archivos por gestos en el aire (**`PALM → FIST`** para copiar/capturar y **`FIST → PALM`** para pegar/guardar) sobre red local con cifrado mutuo **mTLS 1.3**.
+
+            ### 📦 Archivos de Instalación Adjuntos (Assets)
+
+            - 🪟 **Windows 10 / 11 (x64)**: **`GestoClip-Setup.exe`**
+              - Instalador gráfico autocontenido y redimensionable (no requiere instalar .NET 9 ni dependencias externas).
+              - Firmado con certificado de desarrollador Authenticode SHA-256.
+            - 🤖 **Android 9.0+ (API 28+)**: **`GestoClip-Android.apk`**
+              - APK de producción (`release`) firmada con APK Signature Scheme v1/v2/v3.
+              - Huella SHA-256 del certificado: `F6:5D:2E:1A:62:CA:C5:A6:CB:19:F9:AB:E6:BB:F3:AF:A8:BB:D9:BB:FB:BD:F8:12:86:F5:F1:E9:6F:51:15:85`
+              - **Compatible con [Obtainium](https://github.com/ImranR98/Obtainium)**: agrega `https://github.com/Jovani-esj/GestoClip` en Obtainium para instalar y recibir actualizaciones automáticas cuando suba el número de versión.
+          files: |
+            releases/GestoClip-Android.apk
+            releases/GestoClip-Setup.exe

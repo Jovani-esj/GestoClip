@@ -16,7 +16,7 @@
 
 ---
 
-### 📥 [Descargar Instaladores Oficiales (GitHub Releases `v1.0.0`)](https://github.com/Jovani-esj/GestoClip/releases/latest)
+### 📥 [Descargar Instaladores Oficiales (GitHub Releases `v1.1.0`)](https://github.com/Jovani-esj/GestoClip/releases/latest)
 
 | Plataforma | Descarga Directa (GitHub Releases) | Tamaño | Firma Digital | Descripción |
 | :--- | :--- | :--- | :--- | :--- |
@@ -76,7 +76,7 @@ Pasar un fragmento de texto, una imagen recortada o una captura de pantalla entr
 
 ### 2️⃣ Instalación en Android (Directa o con Obtainium)
 1. **Opción A (Recomendada — Con [Obtainium](https://github.com/ImranR98/Obtainium))**: Abre Obtainium → *Añadir App* → pega `https://github.com/Jovani-esj/GestoClip` → toca *Añadir* e *Instalar*. Así recibirás actualizaciones automáticas desde GitHub sin pasar por tiendas comerciales.
-2. **Opción B (Descarga directa del APK)**: Entra desde tu navegador móvil a [**GitHub Releases (`v1.0.0`)**](https://github.com/Jovani-esj/GestoClip/releases/latest) y toca [**`GestoClip-Android.apk`**](https://github.com/Jovani-esj/GestoClip/releases/latest/download/GestoClip-Android.apk) para instalarlo.
+2. **Opción B (Descarga directa del APK)**: Entra desde tu navegador móvil a [**GitHub Releases (`v1.1.0`)**](https://github.com/Jovani-esj/GestoClip/releases/latest) y toca [**`GestoClip-Android.apk`**](https://github.com/Jovani-esj/GestoClip/releases/latest/download/GestoClip-Android.apk) para instalarlo.
 2. En la pantalla principal de **GestoClip Android**, concede los 3 permisos guiados:
    - **Cámara y Notificaciones** (para detectar gestos bajo demanda y escanear el QR).
    - **Superposición (Botón flotante)** (para tener el disparador rápido sobre cualquier app).
@@ -160,8 +160,20 @@ dotnet run --project GestoClip.App/GestoClip.App.csproj
 cd gestoclip-android
 
 # Ejecutar pruebas unitarias y generar el APK
-.\gradlew.bat testDebugUnitTest assembleDebug
+.\gradlew.bat testDebugUnitTest assembleRelease
 ```
+
+### 🏷️ Versionamiento Semántico y Publicación de Releases (Obtainium)
+
+El proyecto sigue **Versionamiento Semántico (`MAJOR.MINOR.PATCH`)** sincronizado entre Windows y Android mediante [`version.json`](./version.json) y el script [`bump-version.ps1`](./bump-version.ps1):
+
+```powershell
+# Incrementar versión automáticamente (patch: 1.1.0 -> 1.1.1, minor: 1.2.0, major: 2.0.0)
+# Esto actualiza version.json, build.gradle.kts (versionCode + versionName) y GestoClip.App.csproj
+.\bump-version.ps1 -Bump minor
+```
+
+Cada vez que se sube un tag `v*.*.*` (por ejemplo `git tag v1.1.0 && git push origin v1.1.0`), el flujo de GitHub Actions [`.github/workflows/release.yml`](./.github/workflows/release.yml) crea automáticamente el **GitHub Release oficial** adjuntando `GestoClip-Setup.exe` y `GestoClip-Android.apk` para que **Obtainium** detecte la actualización al instante.
 
 ---
 

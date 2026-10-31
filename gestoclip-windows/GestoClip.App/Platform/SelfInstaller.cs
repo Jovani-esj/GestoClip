@@ -82,7 +82,7 @@ internal static class SelfInstaller
             Child = new TextBlock { Text = "🖐️", FontSize = 22, HorizontalAlignment = WpfHAlign.Center, VerticalAlignment = VerticalAlignment.Center }
         };
         var titles = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
-        titles.Children.Add(new TextBlock { Text = "Instalar GestoClip v1.0.0", FontSize = 20, FontWeight = FontWeights.Bold });
+        titles.Children.Add(new TextBlock { Text = "Instalar GestoClip v1.1.0", FontSize = 20, FontWeight = FontWeights.Bold });
         titles.Children.Add(new TextBlock { Text = "Portapapeles Universal por Gestos (Windows 11 ⇄ Android)", FontSize = 12.5, Foreground = new SolidColorBrush(WpfColor.FromRgb(161, 161, 170)) });
         header.Children.Add(badge);
         header.Children.Add(titles);
@@ -246,7 +246,7 @@ internal static class SelfInstaller
         using (var key = Registry.CurrentUser.CreateSubKey(UninstallKey, writable: true))
         {
             key.SetValue("DisplayName", "GestoClip");
-            key.SetValue("DisplayVersion", "1.0.0");
+            key.SetValue("DisplayVersion", "1.1.0");
             key.SetValue("Publisher", "GestoClip");
             key.SetValue("InstallLocation", InstallDir);
             key.SetValue("DisplayIcon", exePath);
