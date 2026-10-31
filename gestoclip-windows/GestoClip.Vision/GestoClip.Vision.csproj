@@ -11,6 +11,11 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\GestoClip.Core\GestoClip.Core.csproj" />
-    <None Include="Assets\*" CopyToOutputDirectory="PreserveNewest" LinkBase="Assets" />
+    <Content Include="Assets\*" CopyToOutputDirectory="PreserveNewest" LinkBase="Assets" ExcludeFromSingleFile="false" />
   </ItemGroup>
+  <Target Name="RemoveOpenCvFfmpeg" BeforeTargets="ComputeResolvedFilesToPublishList">
+    <ItemGroup>
+      <ResolvedFileToPublish Remove="@(ResolvedFileToPublish)" Condition="'%(Filename)%(Extension)' == 'opencv_videoio_ffmpeg4100_64.dll'" />
+    </ItemGroup>
+  </Target>
 </Project>

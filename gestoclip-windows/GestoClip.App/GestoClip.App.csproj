@@ -13,4 +13,11 @@
     <ProjectReference Include="..\GestoClip.Core\GestoClip.Core.csproj" />
     <ProjectReference Include="..\GestoClip.Vision\GestoClip.Vision.csproj" />
   </ItemGroup>
+  <Target Name="RemoveOpenCvFfmpeg" BeforeTargets="GenerateSingleFileBundle;ComputeResolvedFilesToPublishList" AfterTargets="ResolvePackageAssets">
+    <ItemGroup>
+      <ResolvedFileToPublish Remove="@(ResolvedFileToPublish)" Condition="'%(Filename)%(Extension)' == 'opencv_videoio_ffmpeg4100_64.dll'" />
+      <FilesToBundle Remove="@(FilesToBundle)" Condition="'%(Filename)%(Extension)' == 'opencv_videoio_ffmpeg4100_64.dll'" />
+      <NativeCopyLocalItems Remove="@(NativeCopyLocalItems)" Condition="'%(Filename)%(Extension)' == 'opencv_videoio_ffmpeg4100_64.dll'" />
+    </ItemGroup>
+  </Target>
 </Project>

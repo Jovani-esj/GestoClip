@@ -16,12 +16,12 @@
 
 ---
 
-### 📥 [Descargar Instaladores Directos (Releases)](https://github.com/Jovani-esj/GestoClip/releases/latest)
+### 📥 Descargar Instaladores Directos (Listos para Usar)
 
-| Plataforma | Archivo de Instalación | Descripción |
-| :--- | :--- | :--- |
-| 🪟 **Windows 10 / 11 (x64)** | [**`GestoClip-Setup.exe`**](https://github.com/Jovani-esj/GestoClip/releases/latest/download/GestoClip-Setup.exe) | Instalador gráfico autocontenido (no requiere instalar .NET ni librerías adicionales). Crea accesos directos, desinstalador y arranque opcional con Windows. |
-| 🤖 **Android 9.0+ (ARM64/x86)** | [**`GestoClip-Android.apk`**](https://github.com/Jovani-esj/GestoClip/releases/latest/download/GestoClip-Android.apk) | Aplicación nativa con soporte para Botón Flotante, Quick Settings Tile, lectura de QR y capturas directas por Accesibilidad. |
+| Plataforma | Archivo de Instalación | Tamaño | Descripción |
+| :--- | :--- | :--- | :--- |
+| 🪟 **Windows 10 / 11 (x64)** | [**⬇️ Descargar `GestoClip-Setup.exe`**](https://github.com/Jovani-esj/GestoClip/raw/main/releases/GestoClip-Setup.exe) | ~98.8 MB | Instalador gráfico autocontenido (no requiere instalar .NET ni librerías adicionales). Crea accesos directos, desinstalador y arranque opcional con Windows. |
+| 🤖 **Android 9.0+ (ARM64/x86)** | [**⬇️ Descargar `GestoClip-Android.apk`**](https://github.com/Jovani-esj/GestoClip/raw/main/releases/GestoClip-Android.apk) | ~92.5 MB | Aplicación nativa con soporte para Botón Flotante, Quick Settings Tile, lectura de QR y capturas directas por Accesibilidad. |
 
 </div>
 
@@ -62,12 +62,12 @@ Pasar un fragmento de texto, una imagen recortada o una captura de pantalla entr
 ## 🚀 Guía de Instalación y Uso Rápido para Usuarios
 
 ### 1️⃣ Instalación en Windows 11
-1. Descarga [**`GestoClip-Setup.exe`**](https://github.com/Jovani-esj/GestoClip/releases/latest/download/GestoClip-Setup.exe) desde la sección de [**Releases**](https://github.com/Jovani-esj/GestoClip/releases/latest).
+1. Descarga [**`GestoClip-Setup.exe`**](https://github.com/Jovani-esj/GestoClip/raw/main/releases/GestoClip-Setup.exe) directamente desde este repositorio (o desde la carpeta [`releases/`](./releases)).
 2. Ejecuta el instalador, elige tus opciones (acceso directo en Escritorio e iniciar junto con Windows) y haz clic en **Instalar ahora**.
 3. Al abrir **GestoClip**, ve a la pestaña **🔗 Emparejar por QR** para mostrar el código QR de vinculación en pantalla.
 
 ### 2️⃣ Instalación en Android
-1. Descarga [**`GestoClip-Android.apk`**](https://github.com/Jovani-esj/GestoClip/releases/latest/download/GestoClip-Android.apk) en tu teléfono e instálalo.
+1. Descarga [**`GestoClip-Android.apk`**](https://github.com/Jovani-esj/GestoClip/raw/main/releases/GestoClip-Android.apk) en tu teléfono e instálalo.
 2. En la pantalla principal de **GestoClip Android**, concede los 3 permisos guiados:
    - **Cámara y Notificaciones** (para detectar gestos bajo demanda y escanear el QR).
    - **Superposición (Botón flotante)** (para tener el disparador rápido sobre cualquier app).

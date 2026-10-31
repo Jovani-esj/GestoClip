@@ -17,6 +17,9 @@ internal static class Program
     [STAThread]
     private static void Main(string[] args)
     {
+        if (SelfInstaller.TryHandleInstallerMode(args))
+            return;
+
         using var mutex = new Mutex(true, "GestoClip.SingleInstance", out var first);
         if (!first) return;
 
