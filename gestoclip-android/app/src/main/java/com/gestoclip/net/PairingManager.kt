@@ -112,7 +112,26 @@ class PairedStore(private val storageFile: File) {
     fun isPaired(fp: String): Boolean {
         if (fp.isBlank()) return false
         synchronized(lock) {
-            return peers.containsKey(fp.lowercase())
+            return peers.containsKey(fp.trim().lowercase())
+        }
+    }
+
+    /**
+     * Reconoce automáticamente a un equipo ya emparejado cuando vuelve a conectarse a la red
+     * o cambia de nombre/IP.
+     */
+    fun reconcileDiscoveredPeer(fp: String, deviceId: String, name: String, platform: String): PairedPeer? {
+        if (fp.isBlank()) return null
+        val norm = fp.trim().lowercase()
+        synchronized(lock) {
+            val existing = peers[norm] ?: return null
+            if (name.isNotBlank() && existing.name != name) {
+                val updated = existing.copy(name = name, deviceId = deviceId.ifBlank { existing.deviceId })
+                peers[norm] = updated
+                saveLocked()
+                return updated
+            }
+            return existing
         }
     }
 

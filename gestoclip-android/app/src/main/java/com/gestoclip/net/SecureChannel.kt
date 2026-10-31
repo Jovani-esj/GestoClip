@@ -264,13 +264,22 @@ class SecureChannel(
         }
     }
 
-    suspend fun sendToPeers(payload: Payload): Int = withContext(Dispatchers.IO) {
+    suspend fun sendToPeers(payload: Payload, targetFingerprints: Set<String>? = null): Int = withContext(Dispatchers.IO) {
+        if (payload.data.size.toLong() > Framing.MAX_SIZE) {
+            throw IOException("El archivo '${payload.name}' supera el límite permitido de 512 MiB.")
+        }
         var sent = 0
-        for (peer in peersProvider().filter { isPaired(it.pubKeyFp) }) {
+        val candidates = peersProvider().filter {
+            isPaired(it.pubKeyFp) &&
+                (targetFingerprints.isNullOrEmpty() || targetFingerprints.any { fp -> fp.equals(it.pubKeyFp, ignoreCase = true) })
+        }
+        for (peer in candidates) {
             try {
                 sendSingle(peer, payload)
                 sent++
-            } catch (_: Exception) {}
+            } catch (e: Exception) {
+                if (targetFingerprints != null && targetFingerprints.size == 1) throw e
+            }
         }
         sent
     }

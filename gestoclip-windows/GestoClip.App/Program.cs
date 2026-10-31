@@ -34,7 +34,7 @@ internal static class Program
     }
 }
 
-/// <summary>Controlador principal: coordina la ventana Windows 11, el icono de bandeja, la red TLS y la cámara.</summary>
+/// <summary>Controlador principal: coordina el Centro para Compartir, Gestos, Bandeja, Red mTLS y Configuración.</summary>
 internal sealed class TrayContext : ApplicationContext
 {
     private readonly System.Windows.Application _wpfApp;
@@ -44,18 +44,24 @@ internal sealed class TrayContext : ApplicationContext
     private readonly ToolStripMenuItem _pairedSubMenu;
     private readonly ToolStripMenuItem _autostartItem;
     private readonly MainWindow _mainWindow;
+    private readonly string _settingsPath;
 
     public UdpDiscovery Discovery { get; }
     public SecureChannel Channel { get; }
     public PairedStore Paired { get; }
     public PairingService Pairing { get; }
     public string DeviceId { get; }
+    public UserSettings Settings { get; private set; }
+    public List<TransferActivityEntry> ActivityHistory { get; } = new();
 
     public TrayContext(System.Windows.Application wpfApp, bool startMinimized)
     {
         _wpfApp = wpfApp;
         var dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "GestoClip");
         Directory.CreateDirectory(dir);
+
+        _settingsPath = Path.Combine(dir, "settings.json");
+        Settings = UserSettings.Load(_settingsPath);
 
         var idPath = Path.Combine(dir, "device.id");
         DeviceId = File.Exists(idPath) ? File.ReadAllText(idPath).Trim() : Guid.NewGuid().ToString("N")[..12];
@@ -74,39 +80,70 @@ internal sealed class TrayContext : ApplicationContext
 
         _actions = new GestureActions(new WinClipboardService(), new WinInputInjector(), new WinScreenCapture(), Channel);
 
-        Channel.Received += (p, _) =>
+        Discovery.PeerSeen += peer =>
+        {
+            // Reconocimiento automático si el dispositivo emparejado vuelve a conectarse a la red
+            Paired.ReconcileDiscoveredPeer(peer.PubKeyFp, peer.DeviceId, peer.Name, peer.Platform);
+        };
+
+        Channel.Received += (p, remoteFp) =>
         {
             _actions.Receive(p);
+            var peerName = Paired.List().FirstOrDefault(x => string.Equals(x.Fingerprint, remoteFp, StringComparison.OrdinalIgnoreCase))?.Name
+                           ?? remoteFp[..Math.Min(8, remoteFp.Length)];
+
+            string? savedPath = null;
+            if (p.Kind != Kinds.Text && Settings.AutoSaveReceivedFiles)
+            {
+                try
+                {
+                    savedPath = ReceivedFileStore.SaveAtomically(p);
+                }
+                catch (Exception ex)
+                {
+                    RecordActivity(new TransferActivityEntry(
+                        Guid.NewGuid().ToString("N")[..8], p.Name, p.Kind, p.Data.LongLength,
+                        TransferDirection.Received, peerName, TransferStatus.Failed, null, ex.Message, DateTime.Now));
+                    Toast($"Error al guardar {p.Name}: {ex.Message}");
+                    return;
+                }
+            }
+
+            RecordActivity(new TransferActivityEntry(
+                Guid.NewGuid().ToString("N")[..8], p.Name, p.Kind, p.Data.LongLength,
+                TransferDirection.Received, peerName, TransferStatus.Completed, savedPath, null, DateTime.Now));
+
             var kb = Math.Max(1, p.Data.Length / 1024);
-            _mainWindow?.NotifyTransferEvent($"📥 Recibido: {p.Name} ({p.Kind})", $"{kb} KB listos para pegar con palma abierta (🖐️)");
-            Toast($"Recibido: {p.Name}. Abre la palma para pegar.");
+            var locationInfo = savedPath is not null ? $"Guardado en {Path.GetFileName(Path.GetDirectoryName(savedPath))}/GestoClip" : "Listo para pegar con palma abierta (🖐️)";
+            _mainWindow?.NotifyTransferEvent($"📥 Recibido: {p.Name} ({kb} KB)", locationInfo);
+            Toast($"Recibido de {peerName}: {p.Name}");
         };
+
         Channel.Rejected += fp =>
         {
             var shortFp = fp[..Math.Min(8, fp.Length)];
             _mainWindow?.NotifyTransferEvent("⚠️ Conexión rechazada", $"Certificado no emparejado: {shortFp}…");
             Toast($"Conexión rechazada (no emparejado): {shortFp}…");
         };
+
         Pairing.DevicePaired += peer =>
         {
             _mainWindow?.NotifyTransferEvent($"🔒 Emparejado con {peer.Name}", $"Plataforma: {peer.Platform}");
             _mainWindow?.RefreshPeersLists();
-            Toast($"Dispositivo emparejado por QR: {peer.Name} ({peer.Platform})");
+            Toast($"Dispositivo emparejado: {peer.Name} ({peer.Platform})");
         };
 
         Discovery.Start();
         Channel.StartListening();
 
         var menu = new ContextMenuStrip();
-        menu.Items.Add("Abrir ventana principal de GestoClip", null, (_, _) => ShowMainWindow("gestures"));
+        menu.Items.Add("Abrir Centro para Compartir (GestoClip)", null, (_, _) => ShowMainWindow("share"));
         menu.Items.Add(new ToolStripSeparator());
-        menu.Items.Add("Gestos por cámara (Ctrl+Alt+G)", null, async (_, _) => await RunGestureAsync(false));
-        menu.Items.Add("Diagnóstico de cámara (10 s, log)", null, async (_, _) => await RunGestureAsync(true));
+        menu.Items.Add("Activar Gesto por Cámara (Ctrl+Alt+G)", null, async (_, _) => await RunGestureAsync(false));
+        menu.Items.Add("Acción Directa: Enviar según Modo de Gesto (Ctrl+Alt+S)", null, async (_, _) => await ExecuteConfiguredFistActionAsync());
+        menu.Items.Add("Acción Directa: Pegar contenido recibido", null, (_, _) => DoPaste());
         menu.Items.Add(new ToolStripSeparator());
-        menu.Items.Add("Enviar ahora (puño)", null, async (_, _) => await DoCopyAsync());
-        menu.Items.Add("Pegar ahora (palma)", null, (_, _) => DoPaste());
-        menu.Items.Add(new ToolStripSeparator());
-        menu.Items.Add("Emparejar dispositivo (QR)...", null, (_, _) => ShowMainWindow("pair"));
+        menu.Items.Add("Dispositivos y Emparejamiento QR...", null, (_, _) => ShowMainWindow("peers"));
 
         _pairedSubMenu = new ToolStripMenuItem("Dispositivos emparejados");
         _pairedSubMenu.DropDownOpening += (_, _) => RebuildPairedSubMenu();
@@ -122,22 +159,53 @@ internal sealed class TrayContext : ApplicationContext
         menu.Items.Add(new ToolStripSeparator());
         menu.Items.Add("Salir por completo", null, (_, _) => ExitApplication());
 
+        Icon trayIcon = SystemIcons.Application;
+        try
+        {
+            var icoFile = Path.Combine(AppContext.BaseDirectory, "Assets", "gestoclip.ico");
+            if (File.Exists(icoFile)) trayIcon = new Icon(icoFile);
+        }
+        catch { }
+
         _tray = new NotifyIcon
         {
-            Icon = SystemIcons.Application,
-            Text = "GestoClip — Portapapeles por Gestos",
+            Icon = trayIcon,
+            Text = "GestoClip — Centro para Compartir y Gestos",
             Visible = true,
             ContextMenuStrip = menu
         };
-        _tray.DoubleClick += (_, _) => ShowMainWindow("gestures");
+        _tray.DoubleClick += (_, _) => ShowMainWindow("share");
 
         _hotkey = new HotkeyWindow();
-        _hotkey.Pressed += async () => await RunGestureAsync(false);
-        _hotkey.Register(HotkeyWindow.MOD_CONTROL | HotkeyWindow.MOD_ALT, (uint)Keys.G);
+        _hotkey.HotkeyPressed += async id =>
+        {
+            if (id == 1) await RunGestureAsync(false);
+            else if (id == 2) await ExecuteConfiguredFistActionAsync();
+        };
+        _hotkey.Register(1, HotkeyWindow.MOD_CONTROL | HotkeyWindow.MOD_ALT, (uint)Keys.G);
+        _hotkey.Register(2, HotkeyWindow.MOD_CONTROL | HotkeyWindow.MOD_ALT, (uint)Keys.S);
 
         _mainWindow = new MainWindow(this);
         if (!startMinimized)
             _mainWindow.Show();
+    }
+
+    public void UpdateSettings(UserSettings newSettings)
+    {
+        Settings = newSettings;
+        Settings.Save(_settingsPath);
+    }
+
+    public void RecordActivity(TransferActivityEntry entry)
+    {
+        lock (ActivityHistory)
+        {
+            var idx = ActivityHistory.FindIndex(x => x.Id == entry.Id);
+            if (idx >= 0) ActivityHistory[idx] = entry;
+            else ActivityHistory.Insert(0, entry);
+            if (ActivityHistory.Count > 100) ActivityHistory.RemoveAt(ActivityHistory.Count - 1);
+        }
+        _mainWindow?.RefreshActivityList();
     }
 
     public void ShowMainWindow(string tab)
@@ -208,7 +276,7 @@ internal sealed class TrayContext : ApplicationContext
                 session.Frame += (pose, n) => log.WriteLine($"{sw.ElapsedMilliseconds,6} ms  frame {n,4}  {pose}");
                 Toast("Diagnóstico: muestra la mano a la cámara 10 s (abierta, luego cerrada).");
             }
-            else Toast("Cámara activa 6 s: palma→puño copia, puño→palma pega.");
+            else Toast("Cámara activa 6 s: palma→puño envía según tu modo, puño→palma pega.");
 
             var ev = await session.RunAsync(TimeSpan.FromSeconds(debug ? 10 : 6));
             log?.Dispose();
@@ -222,8 +290,8 @@ internal sealed class TrayContext : ApplicationContext
             switch (ev)
             {
                 case GestureEvent.Copy:
-                    _mainWindow.NotifyCameraStopped("Gesto detectado: ✊ Copiar / Capturar");
-                    await DoCopyAsync();
+                    _mainWindow.NotifyCameraStopped("Gesto detectado: ✊ Enviar / Capturar");
+                    await ExecuteConfiguredFistActionAsync();
                     break;
                 case GestureEvent.Paste:
                     _mainWindow.NotifyCameraStopped("Gesto detectado: 🖐️ Pegar");
@@ -243,16 +311,99 @@ internal sealed class TrayContext : ApplicationContext
         finally { _running = false; }
     }
 
-    public async Task DoCopyAsync()
+    /// <summary>Ejecuta la acción del puño cerrado según la preferencia del usuario (Portapapeles/Múltiples archivos o Carpetas Preseleccionadas).</summary>
+    public async Task ExecuteConfiguredFistActionAsync()
     {
         try
         {
-            var p = await _actions.OnFistAsync();
-            var kb = Math.Max(1, p.Data.Length / 1024);
-            _mainWindow.NotifyTransferEvent($"📤 Enviado: {p.Name} ({p.Kind})", $"{kb} KB enviados a los pares emparejados");
-            Toast($"Enviado: {p.Name}");
+            if (Settings.FistMode == GestureMode.PreselectedFolders && Settings.PreselectedFolders is { Count: > 0 })
+            {
+                var filesToSend = new List<QueuedFileItem>();
+                foreach (var folder in Settings.PreselectedFolders)
+                {
+                    if (!Directory.Exists(folder)) continue;
+                    var latest = new DirectoryInfo(folder)
+                        .GetFiles()
+                        .OrderByDescending(f => f.LastWriteTimeUtc)
+                        .Take(5)
+                        .Select(f => QueuedFileItem.FromFile(f.FullName));
+                    filesToSend.AddRange(latest);
+                }
+
+                if (filesToSend.Count > 0)
+                {
+                    await SendQueuedFilesAsync(filesToSend, null, CancellationToken.None);
+                    return;
+                }
+            }
+
+            var payloads = await _actions.OnFistAllAsync();
+            foreach (var p in payloads)
+            {
+                RecordActivity(new TransferActivityEntry(
+                    Guid.NewGuid().ToString("N")[..8], p.Name, p.Kind, p.Data.LongLength,
+                    TransferDirection.Sent, "Equipos emparejados", TransferStatus.Completed, null, null, DateTime.Now));
+            }
+            var totalKb = Math.Max(1, payloads.Sum(x => x.Data.LongLength) / 1024);
+            _mainWindow.NotifyTransferEvent($"📤 Enviados {payloads.Count} elemento(s)", $"{totalKb} KB enviados a los equipos emparejados");
+            Toast($"Enviados {payloads.Count} elemento(s)");
         }
-        catch (Exception e) { Toast("Error al enviar: " + e.Message); }
+        catch (Exception e)
+        {
+            Toast("Error al enviar: " + e.Message);
+        }
+    }
+
+    public async Task SendQueuedFilesAsync(
+        IReadOnlyList<QueuedFileItem> items,
+        ISet<string>? targetFingerprints,
+        CancellationToken ct,
+        Action<int, int, string>? onProgress = null)
+    {
+        var total = items.Count;
+        var index = 0;
+        foreach (var item in items)
+        {
+            index++;
+            var actId = Guid.NewGuid().ToString("N")[..8];
+            onProgress?.Invoke(index, total, $"Enviando ({index}/{total}): {item.Name}...");
+            RecordActivity(new TransferActivityEntry(
+                actId, item.Name, item.Kind, item.SizeBytes,
+                TransferDirection.Sent, "Equipos seleccionados", TransferStatus.InProgress, item.FullPath, null, DateTime.Now));
+
+            try
+            {
+                ct.ThrowIfCancellationRequested();
+                if (!File.Exists(item.FullPath))
+                    throw new FileNotFoundException($"No se encontró el archivo '{item.Name}'.");
+                if (item.SizeBytes > Framing.MaxSize)
+                    throw new InvalidOperationException($"El archivo '{item.Name}' ({item.SizeFormatted}) supera el límite máximo de 512 MiB.");
+
+                var bytes = await File.ReadAllBytesAsync(item.FullPath, ct);
+                var payload = new Payload(item.Kind, item.Name, item.Mime, bytes);
+                var sentCount = await Channel.SendToSelectedPeersAsync(payload, targetFingerprints, ct);
+                if (sentCount == 0)
+                    throw new IOException("Ningún equipo emparejado seleccionado respondió en la red local.");
+
+                RecordActivity(new TransferActivityEntry(
+                    actId, item.Name, item.Kind, item.SizeBytes,
+                    TransferDirection.Sent, $"{sentCount} equipo(s)", TransferStatus.Completed, item.FullPath, null, DateTime.Now));
+            }
+            catch (OperationCanceledException)
+            {
+                RecordActivity(new TransferActivityEntry(
+                    actId, item.Name, item.Kind, item.SizeBytes,
+                    TransferDirection.Sent, "Cancelado", TransferStatus.Cancelled, item.FullPath, "Cancelado por el usuario", DateTime.Now));
+                throw;
+            }
+            catch (Exception ex)
+            {
+                RecordActivity(new TransferActivityEntry(
+                    actId, item.Name, item.Kind, item.SizeBytes,
+                    TransferDirection.Sent, "Error", TransferStatus.Failed, item.FullPath, ex.Message, DateTime.Now));
+                throw;
+            }
+        }
     }
 
     public void DoPaste()
@@ -284,13 +435,22 @@ internal sealed class HotkeyWindow : NativeWindow, IDisposable
 {
     public const uint MOD_ALT = 1, MOD_CONTROL = 2;
     private const int WM_HOTKEY = 0x312;
-    public event Action? Pressed;
+    public event Action<int>? HotkeyPressed;
 
     [System.Runtime.InteropServices.DllImport("user32.dll")] private static extern bool RegisterHotKey(IntPtr h, int id, uint mod, uint vk);
     [System.Runtime.InteropServices.DllImport("user32.dll")] private static extern bool UnregisterHotKey(IntPtr h, int id);
 
     public HotkeyWindow() => CreateHandle(new CreateParams());
-    public void Register(uint mod, uint vk) => RegisterHotKey(Handle, 1, mod, vk);
-    protected override void WndProc(ref Message m) { if (m.Msg == WM_HOTKEY) Pressed?.Invoke(); base.WndProc(ref m); }
-    public void Dispose() { UnregisterHotKey(Handle, 1); DestroyHandle(); }
+    public void Register(int id, uint mod, uint vk) => RegisterHotKey(Handle, id, mod, vk);
+    protected override void WndProc(ref Message m)
+    {
+        if (m.Msg == WM_HOTKEY) HotkeyPressed?.Invoke((int)m.WParam);
+        base.WndProc(ref m);
+    }
+    public void Dispose()
+    {
+        UnregisterHotKey(Handle, 1);
+        UnregisterHotKey(Handle, 2);
+        DestroyHandle();
+    }
 }

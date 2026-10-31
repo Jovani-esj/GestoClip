@@ -1,22 +1,24 @@
 <div align="center">
 
-# ✋✊ GestoClip
+<img src="./assets/gestoclip-logo.png" width="128" height="128" alt="GestoClip Logo"/>
 
-**Portapapeles Universal y Transferencia Instantánea por Gestos en el Aire (`Windows 11 ⇄ Android`)**
+# ✋✊ GestoClip `v1.2.0`
+
+**Centro para Compartir Archivos, Imágenes y Portapapeles Universal por Gestos (`Windows 11 ⇄ Android`)**
 
 [![Platform Windows](https://img.shields.io/badge/Windows_11-x64_%7C_.NET_9-0078D6?style=for-the-badge&logo=windows11&logoColor=white)](https://github.com/Jovani-esj/GestoClip/releases/latest)
 [![Platform Android](https://img.shields.io/badge/Android-9.0%2B_(API_28%2B)-3DDC84?style=for-the-badge&logo=android&logoColor=white)](https://github.com/Jovani-esj/GestoClip/releases/latest)
-[![Security mTLS](https://img.shields.io/badge/Transporte-mTLS_1.3_%2B_Pinning-10B981?style=for-the-badge&logo=letsencrypt&logoColor=white)](#%EF%B8%8F-arquitectura-y-seguridad-lan)
+[![Security mTLS](https://img.shields.io/badge/Transporte-mTLS_1.3_%2B_Pinning-10B981?style=for-the-badge&logo=letsencrypt&logoColor=white)](#%EF%B8%8F-arquitectura-del-proyecto)
 [![License Non-Commercial](https://img.shields.io/badge/Licencia-PolyForm_Noncommercial_1.0-F59E0B?style=for-the-badge)](./LICENSE)
 
 <p align="center">
-  <b>Copia texto, imágenes o capturas de pantalla en un dispositivo cerrando el puño frente a la cámara (<code>PALM → FIST</code>) y pégalos en el otro abriendo la palma (<code>FIST → PALM</code>).</b><br/>
-  100 % en red local (LAN) • Cero servidores en la nube • Cámara bajo demanda
+  <b>Comparte múltiples archivos, fotos, capturas y texto arrastrándolos, desde el menú Compartir de Android o cerrando el puño frente a la cámara (<code>PALM → FIST</code>).</b><br/>
+  100 % en red local (LAN) • Cero servidores en la nube • Guardado automático inteligente
 </p>
 
 ---
 
-### 📥 [Descargar Instaladores Oficiales (GitHub Releases `v1.1.0`)](https://github.com/Jovani-esj/GestoClip/releases/latest)
+### 📥 [Descargar Instaladores Oficiales (GitHub Releases `v1.2.0`)](https://github.com/Jovani-esj/GestoClip/releases/latest)
 
 | Plataforma | Descarga Directa (GitHub Releases) | Tamaño | Firma Digital | Descripción |
 | :--- | :--- | :--- | :--- | :--- |
@@ -76,7 +78,7 @@ Pasar un fragmento de texto, una imagen recortada o una captura de pantalla entr
 
 ### 2️⃣ Instalación en Android (Directa o con Obtainium)
 1. **Opción A (Recomendada — Con [Obtainium](https://github.com/ImranR98/Obtainium))**: Abre Obtainium → *Añadir App* → pega `https://github.com/Jovani-esj/GestoClip` → toca *Añadir* e *Instalar*. Así recibirás actualizaciones automáticas desde GitHub sin pasar por tiendas comerciales.
-2. **Opción B (Descarga directa del APK)**: Entra desde tu navegador móvil a [**GitHub Releases (`v1.1.0`)**](https://github.com/Jovani-esj/GestoClip/releases/latest) y toca [**`GestoClip-Android.apk`**](https://github.com/Jovani-esj/GestoClip/releases/latest/download/GestoClip-Android.apk) para instalarlo.
+2. **Opción B (Descarga directa del APK)**: Entra desde tu navegador móvil a [**GitHub Releases (`v1.2.0`)**](https://github.com/Jovani-esj/GestoClip/releases/latest) y toca [**`GestoClip-Android.apk`**](https://github.com/Jovani-esj/GestoClip/releases/latest/download/GestoClip-Android.apk) para instalarlo.
 2. En la pantalla principal de **GestoClip Android**, concede los 3 permisos guiados:
    - **Cámara y Notificaciones** (para detectar gestos bajo demanda y escanear el QR).
    - **Superposición (Botón flotante)** (para tener el disparador rápido sobre cualquier app).

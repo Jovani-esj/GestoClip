@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
@@ -16,7 +16,7 @@ using WpfOrientation = System.Windows.Controls.Orientation;
 namespace GestoClip.App.Platform;
 
 /// <summary>
-/// Permite que el mismo ejecutable autocontenido funcione como instalador gráfico (GestoClip-Setup.exe)
+/// Permite que el mismo ejecutable autocontenido funcione como instalador grÃ¡fico (GestoClip-Setup.exe)
 /// cuando se ejecuta con nombre "Setup" o con --install / --uninstall.
 /// </summary>
 internal static class SelfInstaller
@@ -56,7 +56,7 @@ internal static class SelfInstaller
     {
         var win = new Window
         {
-            Title = "Instalador de GestoClip — Windows 11",
+            Title = "Instalador de GestoClip â€” Windows 11",
             Width = 580,
             MinWidth = 500,
             MinHeight = 460,
@@ -79,11 +79,11 @@ internal static class SelfInstaller
             Width = 44, Height = 44, CornerRadius = new CornerRadius(12),
             Background = new SolidColorBrush(WpfColor.FromRgb(59, 130, 246)),
             Margin = new Thickness(0, 0, 14, 0),
-            Child = new TextBlock { Text = "🖐️", FontSize = 22, HorizontalAlignment = WpfHAlign.Center, VerticalAlignment = VerticalAlignment.Center }
+            Child = new TextBlock { Text = "ðŸ–ï¸", FontSize = 22, HorizontalAlignment = WpfHAlign.Center, VerticalAlignment = VerticalAlignment.Center }
         };
         var titles = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
-        titles.Children.Add(new TextBlock { Text = "Instalar GestoClip v1.1.0", FontSize = 20, FontWeight = FontWeights.Bold });
-        titles.Children.Add(new TextBlock { Text = "Portapapeles Universal por Gestos (Windows 11 ⇄ Android)", FontSize = 12.5, Foreground = new SolidColorBrush(WpfColor.FromRgb(161, 161, 170)) });
+        titles.Children.Add(new TextBlock { Text = "Instalar GestoClip v1.2.0", FontSize = 20, FontWeight = FontWeights.Bold });
+        titles.Children.Add(new TextBlock { Text = "Portapapeles Universal por Gestos (Windows 11 â‡„ Android)", FontSize = 12.5, Foreground = new SolidColorBrush(WpfColor.FromRgb(161, 161, 170)) });
         header.Children.Add(badge);
         header.Children.Add(titles);
         Grid.SetRow(header, 0);
@@ -102,7 +102,7 @@ internal static class SelfInstaller
         var opts = new StackPanel();
         opts.Children.Add(new TextBlock
         {
-            Text = $"Ruta de instalación: {InstallDir}",
+            Text = $"Ruta de instalaciÃ³n: {InstallDir}",
             FontSize = 11.5,
             TextWrapping = TextWrapping.Wrap,
             Foreground = new SolidColorBrush(WpfColor.FromRgb(161, 161, 170)),
@@ -110,9 +110,9 @@ internal static class SelfInstaller
         });
 
         var cbDesktop = new WpfCheckBox { Content = "Crear acceso directo en el Escritorio", IsChecked = true, Margin = new Thickness(0, 5, 0, 5), FontSize = 13.5, Foreground = new SolidColorBrush(WpfColor.FromRgb(244, 244, 245)) };
-        var cbStartMenu = new WpfCheckBox { Content = "Agregar al Menú Inicio de Windows", IsChecked = true, Margin = new Thickness(0, 5, 0, 5), FontSize = 13.5, Foreground = new SolidColorBrush(WpfColor.FromRgb(244, 244, 245)) };
-        var cbAutostart = new WpfCheckBox { Content = "Iniciar automáticamente con Windows", IsChecked = true, Margin = new Thickness(0, 5, 0, 5), FontSize = 13.5, Foreground = new SolidColorBrush(WpfColor.FromRgb(244, 244, 245)) };
-        var cbLaunch = new WpfCheckBox { Content = "Abrir GestoClip al terminar la instalación", IsChecked = true, Margin = new Thickness(0, 5, 0, 5), FontSize = 13.5, Foreground = new SolidColorBrush(WpfColor.FromRgb(244, 244, 245)) };
+        var cbStartMenu = new WpfCheckBox { Content = "Agregar al MenÃº Inicio de Windows", IsChecked = true, Margin = new Thickness(0, 5, 0, 5), FontSize = 13.5, Foreground = new SolidColorBrush(WpfColor.FromRgb(244, 244, 245)) };
+        var cbAutostart = new WpfCheckBox { Content = "Iniciar automÃ¡ticamente con Windows", IsChecked = true, Margin = new Thickness(0, 5, 0, 5), FontSize = 13.5, Foreground = new SolidColorBrush(WpfColor.FromRgb(244, 244, 245)) };
+        var cbLaunch = new WpfCheckBox { Content = "Abrir GestoClip al terminar la instalaciÃ³n", IsChecked = true, Margin = new Thickness(0, 5, 0, 5), FontSize = 13.5, Foreground = new SolidColorBrush(WpfColor.FromRgb(244, 244, 245)) };
 
         opts.Children.Add(cbDesktop);
         opts.Children.Add(cbStartMenu);
@@ -148,7 +148,7 @@ internal static class SelfInstaller
         };
         var installBtn = new WpfButton
         {
-            Content = "✓ Instalar ahora",
+            Content = "âœ“ Instalar ahora",
             MinWidth = 155,
             Height = 40,
             Padding = new Thickness(20, 8, 20, 8),
@@ -183,7 +183,7 @@ internal static class SelfInstaller
             try
             {
                 await Task.Run(() => PerformInstall(d, s, a, l, msg => win.Dispatcher.BeginInvoke(() => statusText.Text = msg)));
-                WpfMessageBox.Show(win, "GestoClip se instaló correctamente en tu equipo.", "Instalación completada", MessageBoxButton.OK, MessageBoxImage.Information);
+                WpfMessageBox.Show(win, "GestoClip se instalÃ³ correctamente en tu equipo.", "InstalaciÃ³n completada", MessageBoxButton.OK, MessageBoxImage.Information);
                 win.Close();
             }
             catch (Exception ex)
@@ -213,7 +213,7 @@ internal static class SelfInstaller
             try { p.Kill(); p.WaitForExit(3000); } catch { }
         }
 
-        progress("Copiando aplicación y modelos ONNX...");
+        progress("Copiando aplicaciÃ³n y modelos ONNX...");
         Directory.CreateDirectory(InstallDir);
 
         var selfPath = Environment.ProcessPath ?? throw new InvalidOperationException("No se pudo determinar la ruta del ejecutable actual.");
@@ -235,18 +235,18 @@ internal static class SelfInstaller
         if (desktopShortcut)
         {
             var desktop = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
-            CreateShortcut(Path.Combine(desktop, "GestoClip.lnk"), exePath, InstallDir, "GestoClip — Portapapeles Universal por Gestos");
+            CreateShortcut(Path.Combine(desktop, "GestoClip.lnk"), exePath, InstallDir, "GestoClip â€” Portapapeles Universal por Gestos");
         }
         if (startMenuShortcut)
         {
             var programs = Environment.GetFolderPath(Environment.SpecialFolder.Programs);
-            CreateShortcut(Path.Combine(programs, "GestoClip.lnk"), exePath, InstallDir, "GestoClip — Portapapeles Universal por Gestos");
+            CreateShortcut(Path.Combine(programs, "GestoClip.lnk"), exePath, InstallDir, "GestoClip â€” Portapapeles Universal por Gestos");
         }
 
         using (var key = Registry.CurrentUser.CreateSubKey(UninstallKey, writable: true))
         {
             key.SetValue("DisplayName", "GestoClip");
-            key.SetValue("DisplayVersion", "1.1.0");
+            key.SetValue("DisplayVersion", "1.2.0");
             key.SetValue("Publisher", "GestoClip");
             key.SetValue("InstallLocation", InstallDir);
             key.SetValue("DisplayIcon", exePath);
@@ -263,7 +263,7 @@ internal static class SelfInstaller
                 run.DeleteValue("GestoClip", throwOnMissingValue: false);
         }
 
-        progress("¡Instalación finalizada!");
+        progress("Â¡InstalaciÃ³n finalizada!");
         if (launchAfter && File.Exists(exePath))
         {
             Process.Start(new ProcessStartInfo(exePath) { WorkingDirectory = InstallDir, UseShellExecute = true });

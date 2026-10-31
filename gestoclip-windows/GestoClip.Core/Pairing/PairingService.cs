@@ -144,7 +144,32 @@ public sealed class PairedStore
     public bool IsPaired(string fp)
     {
         if (string.IsNullOrWhiteSpace(fp)) return false;
-        lock (_lock) return _peers.ContainsKey(fp);
+        lock (_lock) return _peers.ContainsKey(fp.Trim().ToLowerInvariant());
+    }
+
+    /// <summary>
+    /// Reconoce automáticamente a un dispositivo que ya estaba emparejado (por huella TLS o por DeviceId/Nombre)
+    /// actualizando su nombre/timestamp o migrando su registro cuando vuelve a conectarse a la red.
+    /// </summary>
+    public PairedPeer? ReconcileDiscoveredPeer(string fp, string deviceId, string name, string platform)
+    {
+        if (string.IsNullOrWhiteSpace(fp)) return null;
+        var normFp = fp.Trim().ToLowerInvariant();
+        lock (_lock)
+        {
+            if (_peers.TryGetValue(normFp, out var existing))
+            {
+                if (!string.IsNullOrWhiteSpace(name) && existing.Name != name)
+                {
+                    var updated = existing with { Name = name, DeviceId = string.IsNullOrWhiteSpace(deviceId) ? existing.DeviceId : deviceId };
+                    _peers[normFp] = updated;
+                    SaveNoLock();
+                    return updated;
+                }
+                return existing;
+            }
+            return null;
+        }
     }
 
     public IReadOnlyList<PairedPeer> List()

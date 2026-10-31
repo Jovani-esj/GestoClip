@@ -63,7 +63,13 @@ public sealed class WinClipboardService : IClipboardService
 {
     public uint SequenceNumber() => Native.GetClipboardSequenceNumber();
 
-    public Payload? ReadAny() => OnSta(() =>
+    public Payload? ReadAny()
+    {
+        var all = ReadAll();
+        return all.Count > 0 ? all[0] : null;
+    }
+
+    public IReadOnlyList<Payload> ReadAll() => OnSta<IReadOnlyList<Payload>>(() =>
     {
         for (var attempt = 0; attempt < 5; attempt++)
         {
@@ -72,23 +78,30 @@ public sealed class WinClipboardService : IClipboardService
                 if (System.Windows.Forms.Clipboard.ContainsFileDropList())
                 {
                     var files = System.Windows.Forms.Clipboard.GetFileDropList();
-                    if (files.Count > 0 && files[0] is { } f0 && File.Exists(f0))
-                        return new Payload(Kinds.File, Path.GetFileName(f0), "application/octet-stream", File.ReadAllBytes(f0));
+                    var list = new List<Payload>();
+                    foreach (var f in files)
+                    {
+                        if (string.IsNullOrWhiteSpace(f) || !File.Exists(f)) continue;
+                        var item = QueuedFileItem.FromFile(f);
+                        if (item.SizeBytes <= GestoClip.Core.Transport.Framing.MaxSize)
+                            list.Add(new Payload(item.Kind, item.Name, item.Mime, File.ReadAllBytes(item.FullPath)));
+                    }
+                    if (list.Count > 0) return list;
                 }
                 if (System.Windows.Forms.Clipboard.ContainsImage())
                 {
                     using var img = System.Windows.Forms.Clipboard.GetImage()!;
                     using var ms = new MemoryStream();
                     img.Save(ms, ImageFormat.Png);
-                    return new Payload(Kinds.Image, "clip.png", "image/png", ms.ToArray());
+                    return new[] { new Payload(Kinds.Image, $"portapapeles_{DateTime.Now:HHmmss}.png", "image/png", ms.ToArray()) };
                 }
                 if (System.Windows.Forms.Clipboard.ContainsText())
-                    return new Payload(Kinds.Text, "clip.txt", "text/plain", System.Text.Encoding.UTF8.GetBytes(System.Windows.Forms.Clipboard.GetText()));
-                return null;
+                    return new[] { new Payload(Kinds.Text, "clip.txt", "text/plain", System.Text.Encoding.UTF8.GetBytes(System.Windows.Forms.Clipboard.GetText())) };
+                return Array.Empty<Payload>();
             }
             catch (ExternalException) { Thread.Sleep(40); }
         }
-        return null;
+        return Array.Empty<Payload>();
     });
 
     public void Write(Payload p) => OnSta<object?>(() =>

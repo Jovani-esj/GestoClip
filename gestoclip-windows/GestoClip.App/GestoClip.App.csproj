@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net9.0-windows</TargetFramework>
@@ -8,15 +8,20 @@
     <Nullable>enable</Nullable>
     <RootNamespace>GestoClip.App</RootNamespace>
     <NoWarn>$(NoWarn);WPF0001</NoWarn>
-    <Version>1.1.0</Version>
-    <AssemblyVersion>1.1.0.0</AssemblyVersion>
-    <FileVersion>1.1.0.0</FileVersion>
-    <Product>GestoClip — Universal Gesture Clipboard</Product>
+    <Version>1.2.0</Version>
+    <AssemblyVersion>1.2.0.0</AssemblyVersion>
+    <FileVersion>1.2.0.0</FileVersion>
+    <Product>GestoClip â€” Universal Gesture Clipboard</Product>
     <Company>Jovani Emmanuel Sanchez de Jesus</Company>
     <Authors>Jovani Emmanuel Sanchez de Jesus</Authors>
     <Copyright>Copyright (c) 2026 Jovani Emmanuel Sanchez de Jesus</Copyright>
     <Description>Portapapeles universal y transferencia por gestos en red local (Windows 11 y Android)</Description>
+    <ApplicationIcon>Assets\gestoclip.ico</ApplicationIcon>
   </PropertyGroup>
+  <ItemGroup>
+    <Resource Include="Assets\gestoclip-logo.png" />
+    <Content Include="Assets\gestoclip.ico" CopyToOutputDirectory="PreserveNewest" LinkBase="Assets" ExcludeFromSingleFile="false" />
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\GestoClip.Core\GestoClip.Core.csproj" />
     <ProjectReference Include="..\GestoClip.Vision\GestoClip.Vision.csproj" />

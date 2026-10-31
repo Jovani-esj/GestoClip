@@ -7,6 +7,7 @@ public interface IClipboardService
 {
     uint SequenceNumber();
     Payload? ReadAny();
+    IReadOnlyList<Payload> ReadAll() => ReadAny() is { } p ? new[] { p } : Array.Empty<Payload>();
     void Write(Payload p);
 }
 
@@ -44,22 +45,40 @@ public sealed class GestureActions
 
     public bool HasPending { get { lock (_lock) return _inbox is not null; } }
 
-    /// <summary>Puño: copia la selección; si no cambió el portapapeles, captura pantalla. Devuelve el payload enviado.</summary>
-    public async Task<Payload> OnFistAsync(CancellationToken ct = default)
+    /// <summary>Puño: copia la selección; envía TODOS los archivos copiados si hay varios, o captura pantalla si no cambió el portapapeles.</summary>
+    public async Task<IReadOnlyList<Payload>> OnFistAllAsync(CancellationToken ct = default)
     {
         var seq = _clip.SequenceNumber();
         _input.CtrlC();
 
-        Payload? payload = null;
+        IReadOnlyList<Payload> payloads = Array.Empty<Payload>();
         var deadline = Environment.TickCount64 + CopyTimeoutMs;
         while (Environment.TickCount64 < deadline)
         {
-            if (_clip.SequenceNumber() != seq) { payload = _clip.ReadAny(); break; }
+            if (_clip.SequenceNumber() != seq)
+            {
+                payloads = _clip.ReadAll();
+                break;
+            }
             await Task.Delay(25, ct);
         }
-        payload ??= _screen.CaptureActiveMonitor();
-        await _sender.SendToPeersAsync(payload, ct);
-        return payload;
+
+        if (payloads.Count == 0)
+            payloads = new[] { _screen.CaptureActiveMonitor() };
+
+        foreach (var p in payloads)
+        {
+            ct.ThrowIfCancellationRequested();
+            await _sender.SendToPeersAsync(p, ct);
+        }
+        return payloads;
+    }
+
+    /// <summary>Compatibilidad con pruebas existentes: devuelve el primer payload enviado.</summary>
+    public async Task<Payload> OnFistAsync(CancellationToken ct = default)
+    {
+        var list = await OnFistAllAsync(ct);
+        return list[0];
     }
 
     /// <summary>Palma: pone lo recibido en el portapapeles y pega. False si no había nada pendiente.</summary>

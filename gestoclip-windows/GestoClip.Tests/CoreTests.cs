@@ -180,4 +180,76 @@ public class GestureActionsTests
         Assert.Null(c.Written);
         Assert.Equal(0, i.Pastes);
     }
+
+    private sealed class MultiFileClip : IClipboardService
+    {
+        public uint Seq;
+        public List<Payload> Items = new();
+        public uint SequenceNumber() => Seq;
+        public Payload? ReadAny() => Items.FirstOrDefault();
+        public IReadOnlyList<Payload> ReadAll() => Items;
+        public void Write(Payload p) { }
+    }
+
+    private sealed class MultiFileInput : IInputInjector
+    {
+        public MultiFileClip Clip = null!;
+        public void CtrlC()
+        {
+            Clip.Seq++;
+            Clip.Items = new List<Payload>
+            {
+                new(Kinds.File, "doc1.pdf", "application/pdf", "pdf1"u8.ToArray()),
+                new(Kinds.Image, "foto2.png", "image/png", "png2"u8.ToArray()),
+                new(Kinds.File, "notas3.txt", "text/plain", "txt3"u8.ToArray())
+            };
+        }
+        public void CtrlV() { }
+    }
+
+    [Fact]
+    public async Task FistAll_WithMultipleCopiedFiles_SendsEveryFileInOrder()
+    {
+        var clip = new MultiFileClip();
+        var input = new MultiFileInput { Clip = clip };
+        var sender = new FakeSender();
+        var actions = new GestureActions(clip, input, new FakeScreen(), sender) { CopyTimeoutMs = 150 };
+
+        var sent = await actions.OnFistAllAsync();
+        Assert.Equal(3, sent.Count);
+        Assert.Equal(3, sender.Sent.Count);
+        Assert.Equal("doc1.pdf", sender.Sent[0].Name);
+        Assert.Equal("foto2.png", sender.Sent[1].Name);
+        Assert.Equal("notas3.txt", sender.Sent[2].Name);
+    }
+
+    [Fact]
+    public void ReceivedFileStore_SavesAtomically_WithoutOverwritingExistingNames()
+    {
+        var tempRoot = Path.Combine(Path.GetTempPath(), "GestoClipTests_" + Guid.NewGuid().ToString("N")[..8]);
+        var picsDir = Path.Combine(tempRoot, "Pictures");
+        var docsDir = Path.Combine(tempRoot, "Downloads");
+        try
+        {
+            var imgPayload = new Payload(Kinds.Image, "captura.png", "image/png", new byte[] { 10, 20, 30, 40 });
+            var path1 = ReceivedFileStore.SaveAtomically(imgPayload, picsDir, docsDir);
+            var path2 = ReceivedFileStore.SaveAtomically(imgPayload, picsDir, docsDir);
+
+            Assert.NotEqual(path1, path2);
+            Assert.True(File.Exists(path1));
+            Assert.True(File.Exists(path2));
+            Assert.Contains("(1)", Path.GetFileName(path2));
+
+            var docPayload = new Payload(Kinds.File, "reporte.pdf", "application/pdf", new byte[] { 1, 2, 3, 4, 5 });
+            var docPath = ReceivedFileStore.SaveAtomically(docPayload, picsDir, docsDir);
+            Assert.True(File.Exists(docPath));
+            Assert.Contains("Downloads", docPath);
+            // Verificar que no quedaron archivos .part residuales
+            Assert.Empty(Directory.GetFiles(Path.GetDirectoryName(docPath)!, "*.part"));
+        }
+        finally
+        {
+            if (Directory.Exists(tempRoot)) Directory.Delete(tempRoot, true);
+        }
+    }
 }

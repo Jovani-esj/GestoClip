@@ -154,6 +154,11 @@ class GestoClipAndroidTests {
                 assertEquals(1, sent2)
                 val p2 = withTimeout(5000L) { gotOnClient.await() }
                 assertEquals("Hola desde Windows", String(p2.data))
+
+                // Probar envío selectivo de múltiples archivos y reconciliación automática
+                val reconciled = serverStore.reconcileDiscoveredPeer(clientChannel.localFingerprint, "and-1", "Pixel 8 Pro", "ANDROID")
+                assertNotNull(reconciled)
+                assertEquals("Pixel 8 Pro", reconciled!!.name)
             } finally {
                 serverChannel.close()
                 clientChannel.close()

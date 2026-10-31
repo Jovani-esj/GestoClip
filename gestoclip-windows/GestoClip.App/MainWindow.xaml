@@ -1,48 +1,51 @@
 <Window x:Class="GestoClip.App.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="GestoClip — Portapapeles Universal por Gestos"
-        Width="980" Height="660"
-        MinWidth="860" MinHeight="580"
+        Title="GestoClip — Centro para Compartir y Gestos (Windows 11 ⇄ Android)"
+        Width="1040" Height="700"
+        MinWidth="900" MinHeight="600"
         WindowStartupLocation="CenterScreen"
         ThemeMode="Dark"
         Background="#18181B"
         Foreground="#F4F4F5"
+        AllowDrop="True"
+        DragOver="OnWindowDragOver"
+        Drop="OnWindowDrop"
         FontFamily="Segoe UI Variable Display, Segoe UI">
 
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="240"/>
+            <ColumnDefinition Width="245"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <!-- Barra lateral estilo Windows 11 -->
+        <!-- Barra lateral estilo Windows 11 con el nuevo logo VectorCraft -->
         <Border Grid.Column="0" Background="#121215" BorderBrush="#27272A" BorderThickness="0,0,1,0" Padding="16,20">
             <DockPanel LastChildFill="False">
                 <StackPanel DockPanel.Dock="Top" Margin="4,0,4,22">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <Border Width="36" Height="36" CornerRadius="10" Background="#3B82F6" Margin="0,0,12,0">
-                            <TextBlock Text="🖐️" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <Border Width="42" Height="42" CornerRadius="10" Background="#0F172A" Margin="0,0,12,0" ClipToBounds="True">
+                            <Image Source="pack://application:,,,/Assets/gestoclip-logo.png" Stretch="Uniform"/>
                         </Border>
                         <StackPanel VerticalAlignment="Center">
                             <TextBlock Text="GestoClip" FontSize="18" FontWeight="Bold" Foreground="#FFFFFF"/>
-                            <TextBlock Text="Windows 11 ⇄ Android" FontSize="11.5" Foreground="#A1A1AA"/>
+                            <TextBlock Text="Compartir y Gestos LAN" FontSize="11.5" Foreground="#A1A1AA"/>
                         </StackPanel>
                     </StackPanel>
                 </StackPanel>
 
                 <StackPanel DockPanel.Dock="Top">
-                    <Button x:Name="NavGesturesBtn" Click="OnNavGestures" HorizontalContentAlignment="Left" Padding="14,11" Margin="0,0,0,6" FontSize="13.5" FontWeight="SemiBold">
+                    <Button x:Name="NavShareBtn" Click="OnNavShare" HorizontalContentAlignment="Left" Padding="14,11" Margin="0,0,0,6" FontSize="13.5" FontWeight="SemiBold">
+                        <TextBlock Text="📂  Compartir Archivos"/>
+                    </Button>
+                    <Button x:Name="NavGesturesBtn" Click="OnNavGestures" HorizontalContentAlignment="Left" Padding="14,11" Margin="0,0,0,6" FontSize="13.5">
                         <TextBlock Text="🖐️  Gestos y Cámara"/>
                     </Button>
-                    <Button x:Name="NavPairBtn" Click="OnNavPair" HorizontalContentAlignment="Left" Padding="14,11" Margin="0,0,0,6" FontSize="13.5">
-                        <TextBlock Text="📱  Emparejar (QR)"/>
-                    </Button>
                     <Button x:Name="NavPeersBtn" Click="OnNavPeers" HorizontalContentAlignment="Left" Padding="14,11" Margin="0,0,0,6" FontSize="13.5">
-                        <TextBlock Text="🌐  Dispositivos en Red"/>
+                        <TextBlock Text="📱  Dispositivos y QR"/>
                     </Button>
                     <Button x:Name="NavSettingsBtn" Click="OnNavSettings" HorizontalContentAlignment="Left" Padding="14,11" Margin="0,0,0,6" FontSize="13.5">
-                        <TextBlock Text="⚙️  Ajustes y Sistema"/>
+                        <TextBlock Text="⚙️  Ajustes y Atajos"/>
                     </Button>
                 </StackPanel>
 
@@ -50,27 +53,129 @@
                     <StackPanel>
                         <TextBlock x:Name="SidebarStatusTitle" Text="● Escuchando en LAN" FontSize="12" FontWeight="SemiBold" Foreground="#34D399"/>
                         <TextBlock x:Name="SidebarIpText" Text="IP: 127.0.0.1:8765" FontSize="11.5" Foreground="#A1A1AA" Margin="0,3,0,0"/>
-                        <TextBlock Text="Atajo: Ctrl + Alt + G" FontSize="11" Foreground="#71717A" Margin="0,4,0,0"/>
+                        <TextBlock Text="Gesto: Ctrl+Alt+G | Directo: Ctrl+Alt+S" FontSize="10.5" Foreground="#71717A" Margin="0,4,0,0"/>
                     </StackPanel>
                 </Border>
             </DockPanel>
         </Border>
 
         <!-- Contenido Principal -->
-        <Grid Grid.Column="1" Margin="26,22">
+        <Grid Grid.Column="1" Margin="24,20">
 
-            <!-- VISTA 1: GESTOS Y CAMARA -->
-            <Grid x:Name="ViewGestures" Visibility="Visible">
+            <!-- VISTA 1 (PRINCIPAL): CENTRO PARA COMPARTIR -->
+            <Grid x:Name="ViewShare" Visibility="Visible">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="1.15*"/>
+                    <RowDefinition Height="0.95*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <DockPanel Grid.Row="0" Margin="0,0,0,14">
+                    <StackPanel>
+                        <TextBlock Text="Centro para Compartir Archivos e Imágenes" FontSize="22" FontWeight="Bold"/>
+                        <TextBlock Text="Arrastra archivos aquí, elígelos del Explorador o usa el gesto de puño (✊) para enviarlos a tus equipos emparejados." FontSize="12.5" Foreground="#A1A1AA" Margin="0,3,0,0"/>
+                    </StackPanel>
+                </DockPanel>
+
+                <!-- Selección de Archivos + Equipos Destino -->
+                <Grid Grid.Row="1" Margin="0,0,0,14">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1.45*"/>
+                        <ColumnDefinition Width="1*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Zona Drag & Drop + Cola de Envío -->
+                    <Border Grid.Column="0" Background="#202026" CornerRadius="12" BorderBrush="#3B82F6" BorderThickness="1.5" Padding="16" Margin="0,0,12,0">
+                        <DockPanel>
+                            <DockPanel DockPanel.Dock="Top" Margin="0,0,0,10">
+                                <TextBlock x:Name="QueueHeaderTitle" Text="1. Archivos seleccionados (0)" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                    <Button Click="OnPickFiles" Padding="12,6" Margin="0,0,6,0" FontWeight="SemiBold">
+                                        <TextBlock Text="➕ Elegir archivos..."/>
+                                    </Button>
+                                    <Button Click="OnAddClipboardFiles" Padding="10,6" Margin="0,0,6,0">
+                                        <TextBlock Text="📋 Del portapapeles"/>
+                                    </Button>
+                                    <Button Click="OnClearQueue" Padding="10,6">
+                                        <TextBlock Text="Limpiar"/>
+                                    </Button>
+                                </StackPanel>
+                            </DockPanel>
+
+                            <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
+                                <TextBlock x:Name="TransferProgressText" Text="Arrastra uno o varios archivos (máx. 512 MiB c/u)" FontSize="12" Foreground="#A1A1AA" VerticalAlignment="Center" Margin="0,0,14,0"/>
+                                <Button x:Name="CancelSendBtn" Click="OnCancelSend" Padding="12,8" Margin="0,0,8,0" Visibility="Collapsed">
+                                    <TextBlock Text="🚫 Cancelar"/>
+                                </Button>
+                                <Button x:Name="RetrySendBtn" Click="OnSendQueuedFiles" Padding="12,8" Margin="0,0,8,0" Visibility="Collapsed">
+                                    <TextBlock Text="🔄 Reintentar"/>
+                                </Button>
+                                <Button x:Name="SendFilesBtn" Click="OnSendQueuedFiles" Padding="18,8" FontWeight="Bold" Background="#2563EB" Foreground="White">
+                                    <TextBlock Text="📤 Enviar ahora"/>
+                                </Button>
+                            </StackPanel>
+
+                            <ListBox x:Name="QueuedFilesListBox" Background="#141418" BorderBrush="#2E2E38" Foreground="#F4F4F5" FontSize="12.5"/>
+                        </DockPanel>
+                    </Border>
+
+                    <!-- Selección de Equipos Destino -->
+                    <Border Grid.Column="1" Background="#202026" CornerRadius="12" BorderBrush="#2E2E38" BorderThickness="1" Padding="16">
+                        <DockPanel>
+                            <DockPanel DockPanel.Dock="Top" Margin="0,0,0,8">
+                                <TextBlock Text="2. Equipos destino" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                <Button Click="OnRefreshPeersView" Padding="10,4" HorizontalAlignment="Right" FontSize="11.5">
+                                    <TextBlock Text="🔄 Actualizar"/>
+                                </Button>
+                            </DockPanel>
+                            <TextBlock DockPanel.Dock="Top" Text="Marca a qué dispositivos emparejados enviar (si no marcas ninguno, se envía a todos los conectados):" FontSize="11.5" Foreground="#A1A1AA" TextWrapping="Wrap" Margin="0,0,0,8"/>
+                            <Button DockPanel.Dock="Bottom" Click="OnNavPeers" Padding="10,7" Margin="0,8,0,0" HorizontalAlignment="Stretch">
+                                <TextBlock Text="🔗 Emparejar o administrar dispositivos"/>
+                            </Button>
+                            <ListBox x:Name="TargetPeersListBox" SelectionMode="Multiple" Background="#141418" BorderBrush="#2E2E38" Foreground="#F4F4F5" FontSize="12.5"/>
+                        </DockPanel>
+                    </Border>
+                </Grid>
+
+                <!-- Historial de Actividad Reciente y Acceso a Carpetas -->
+                <Border Grid.Row="2" Background="#202026" CornerRadius="12" BorderBrush="#2E2E38" BorderThickness="1" Padding="16">
+                    <DockPanel>
+                        <DockPanel DockPanel.Dock="Top" Margin="0,0,0,8">
+                            <TextBlock Text="3. Actividad reciente (Envíos y Recepciones automáticas)" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                <Button Click="OnOpenSelectedActivityLocation" Padding="10,5" Margin="0,0,6,0" FontSize="12">
+                                    <TextBlock Text="📂 Abrir ubicación del seleccionado"/>
+                                </Button>
+                                <Button Click="OnOpenPicturesGestoClip" Padding="10,5" Margin="0,0,6,0" FontSize="12">
+                                    <TextBlock Text="🖼️ Imágenes/GestoClip"/>
+                                </Button>
+                                <Button Click="OnOpenDownloadsGestoClip" Padding="10,5" FontSize="12">
+                                    <TextBlock Text="📥 Descargas/GestoClip"/>
+                                </Button>
+                            </StackPanel>
+                        </DockPanel>
+                        <ListBox x:Name="ActivityListBox" Background="#141418" BorderBrush="#2E2E38" Foreground="#E4E4E7" FontSize="12"/>
+                    </DockPanel>
+                </Border>
+
+                <!-- Barra de estado inferior -->
+                <Border Grid.Row="3" Background="#202026" CornerRadius="10" Padding="14,9" Margin="0,12,0,0" BorderBrush="#2E2E38" BorderThickness="1">
+                    <TextBlock x:Name="FooterStatusText" Text="Listo. Arrastra archivos a esta ventana o presiona Ctrl+Alt+G para activar la cámara de gestos." FontSize="12.5" Foreground="#D4D4D8"/>
+                </Border>
+            </Grid>
+
+            <!-- VISTA 2: GESTOS Y CAMARA -->
+            <Grid x:Name="ViewGestures" Visibility="Collapsed">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
-                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
                 <DockPanel Grid.Row="0" Margin="0,0,0,16">
                     <StackPanel>
-                        <TextBlock Text="Control por Gestos y Portapapeles" FontSize="22" FontWeight="Bold"/>
-                        <TextBlock Text="Cierra el puño (🖐️ → ✊) para copiar o capturar pantalla. Abre la palma (✊ → 🖐️) para pegar lo recibido." FontSize="12.5" Foreground="#A1A1AA" Margin="0,4,0,0"/>
+                        <TextBlock Text="Control por Gestos de la Mano (MediaPipe 21 Puntos)" FontSize="22" FontWeight="Bold"/>
+                        <TextBlock Text="Cierra el puño (🖐️ → ✊) para enviar selección/archivos/captura. Abre la palma (✊ → 🖐️) para pegar lo recibido." FontSize="12.5" Foreground="#A1A1AA" Margin="0,4,0,0"/>
                     </StackPanel>
                 </DockPanel>
 
@@ -84,7 +189,7 @@
                     <Border Grid.Column="0" Background="#202026" CornerRadius="12" BorderBrush="#2E2E38" BorderThickness="1" Padding="16" Margin="0,0,14,0">
                         <DockPanel>
                             <DockPanel DockPanel.Dock="Top" Margin="0,0,0,10">
-                                <TextBlock Text="Vista Previa de Cámara (MediaPipe 21 puntos)" FontWeight="SemiBold" FontSize="13.5" VerticalAlignment="Center"/>
+                                <TextBlock Text="Vista Previa de Cámara (Bajo Demanda)" FontWeight="SemiBold" FontSize="13.5" VerticalAlignment="Center"/>
                                 <Border x:Name="PoseBadge" Background="#27272A" CornerRadius="6" Padding="10,4" HorizontalAlignment="Right">
                                     <TextBlock x:Name="PoseBadgeText" Text="En espera" FontSize="12" FontWeight="SemiBold" Foreground="#E4E4E7"/>
                                 </Border>
@@ -111,13 +216,13 @@
                         </DockPanel>
                     </Border>
 
-                    <!-- Tarjeta de Acciones Directas y Bandeja -->
+                    <!-- Tarjeta de Acciones Directas -->
                     <StackPanel Grid.Column="1">
                         <Border Background="#202026" CornerRadius="12" BorderBrush="#2E2E38" BorderThickness="1" Padding="16" Margin="0,0,0,14">
                             <StackPanel>
-                                <TextBlock Text="Acciones Rápidas (Sin Cámara)" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,10"/>
+                                <TextBlock Text="Atajos y Acciones Directas (Sin Cámara)" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,10"/>
                                 <Button Click="OnManualCopy" HorizontalAlignment="Stretch" Padding="12,11" Margin="0,0,0,8" FontWeight="SemiBold">
-                                    <TextBlock Text="✊  Copiar selección o Capturar y Enviar"/>
+                                    <TextBlock Text="✊  Ejecutar Acción de Puño Ahora (Ctrl+Alt+S)"/>
                                 </Button>
                                 <Button Click="OnManualPaste" HorizontalAlignment="Stretch" Padding="12,11">
                                     <TextBlock Text="🖐️  Pegar último contenido recibido"/>
@@ -127,140 +232,145 @@
 
                         <Border Background="#202026" CornerRadius="12" BorderBrush="#2E2E38" BorderThickness="1" Padding="16">
                             <StackPanel>
-                                <TextBlock Text="Actividad Reciente" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                                <TextBlock Text="Último Evento" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,8"/>
                                 <TextBlock x:Name="LastTransferTitle" Text="Sin transferencias en esta sesión" FontSize="13" FontWeight="Medium" Foreground="#E4E4E7" TextWrapping="Wrap"/>
-                                <TextBlock x:Name="LastTransferDetail" Text="Empareja tu teléfono Android en la pestaña 'Emparejar (QR)' para comenzar." FontSize="12" Foreground="#A1A1AA" Margin="0,6,0,0" TextWrapping="Wrap"/>
+                                <TextBlock x:Name="LastTransferDetail" Text="Puedes configurar qué hace el gesto de puño en la pestaña 'Ajustes y Atajos'." FontSize="12" Foreground="#A1A1AA" Margin="0,6,0,0" TextWrapping="Wrap"/>
                             </StackPanel>
                         </Border>
                     </StackPanel>
                 </Grid>
-
-                <!-- Barra de estado inferior -->
-                <Border Grid.Row="2" Background="#202026" CornerRadius="10" Padding="14,10" Margin="0,14,0,0" BorderBrush="#2E2E38" BorderThickness="1">
-                    <TextBlock x:Name="FooterStatusText" Text="Listo. Usa Ctrl+Alt+G en cualquier aplicación para disparar un gesto." FontSize="12.5" Foreground="#D4D4D8"/>
-                </Border>
             </Grid>
 
-            <!-- VISTA 2: EMPAREJAR QR -->
-            <Grid x:Name="ViewPair" Visibility="Collapsed">
+            <!-- VISTA 3: DISPOSITIVOS Y QR UNIFICADOS -->
+            <Grid x:Name="ViewPeers" Visibility="Collapsed">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="1.15*"/>
-                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="1.05*"/>
+                    <ColumnDefinition Width="1.25*"/>
                 </Grid.ColumnDefinitions>
 
-                <Border Grid.Column="0" Background="#202026" CornerRadius="12" BorderBrush="#2E2E38" BorderThickness="1" Padding="20" Margin="0,0,14,0">
-                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                        <TextBlock Text="Escanea este QR desde Android" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,14"/>
-                        <Border Background="White" CornerRadius="12" Padding="12" Width="250" Height="250" HorizontalAlignment="Center">
+                <!-- Panel Izquierdo: QR e Invitación -->
+                <Border Grid.Column="0" Background="#202026" CornerRadius="12" BorderBrush="#2E2E38" BorderThickness="1" Padding="18" Margin="0,0,12,0">
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Top">
+                        <TextBlock Text="Emparejar por Código QR" FontSize="17" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                        <Border Background="White" CornerRadius="12" Padding="10" Width="210" Height="210" HorizontalAlignment="Center">
                             <Image x:Name="QrCodeImage" Stretch="Uniform"/>
                         </Border>
-                        <TextBlock x:Name="QrPinLabel" Text="TOKEN: ------" FontFamily="Consolas" FontSize="22" FontWeight="Bold" Foreground="#60A5FA" HorizontalAlignment="Center" Margin="0,14,0,4"/>
-                        <TextBlock x:Name="QrTimerLabel" Text="Expira en 02:00 (un solo uso)" FontSize="12.5" Foreground="#F87171" HorizontalAlignment="Center" Margin="0,0,0,14"/>
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                            <Button Click="OnRefreshQr" Padding="14,8" Margin="0,0,8,0" FontWeight="SemiBold">
+                        <TextBlock x:Name="QrPinLabel" Text="TOKEN: ------" FontFamily="Consolas" FontSize="19" FontWeight="Bold" Foreground="#60A5FA" HorizontalAlignment="Center" Margin="0,10,0,2"/>
+                        <TextBlock x:Name="QrTimerLabel" Text="Expira en 02:00 (un solo uso)" FontSize="12" Foreground="#F87171" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,12">
+                            <Button Click="OnRefreshQr" Padding="12,7" Margin="0,0,8,0" FontWeight="SemiBold">
                                 <TextBlock Text="🔄 Regenerar QR"/>
                             </Button>
-                            <Button Click="OnCopyQrUri" Padding="14,8">
+                            <Button Click="OnCopyQrUri" Padding="12,7">
                                 <TextBlock Text="📋 Copiar enlace"/>
                             </Button>
                         </StackPanel>
+                        <TextBlock x:Name="QrDetailsText" Text="" FontSize="11.5" Foreground="#A1A1AA" TextWrapping="Wrap" Margin="0,0,0,10"/>
+                        <TextBlock Text="Conectar pegando enlace gestoclip://pair de otro equipo:" FontSize="11.5" Foreground="#D4D4D8" Margin="0,4,0,4"/>
+                        <DockPanel>
+                            <Button DockPanel.Dock="Right" Click="OnConnectByUri" Padding="12,6" Margin="6,0,0,0" FontWeight="SemiBold">
+                                <TextBlock Text="Conectar"/>
+                            </Button>
+                            <TextBox x:Name="PairUriInputBox" FontFamily="Consolas" FontSize="11.5" Padding="6,5"/>
+                        </DockPanel>
                     </StackPanel>
                 </Border>
 
-                <StackPanel Grid.Column="1">
-                    <Border Background="#202026" CornerRadius="12" BorderBrush="#2E2E38" BorderThickness="1" Padding="18" Margin="0,0,0,14">
-                        <StackPanel>
-                            <TextBlock Text="Seguridad de Emparejamiento" FontSize="15" FontWeight="SemiBold" Margin="0,0,0,8"/>
-                            <TextBlock x:Name="QrDetailsText" Text="" FontSize="12" Foreground="#A1A1AA" TextWrapping="Wrap"/>
-                            <TextBlock Text="• El código QR incluye la huella SHA-256 del certificado TLS de esta PC y un token efímero de 6 dígitos.&#x0a;• El token se destruye tras el primer uso o tras 3 intentos fallidos."
-                                       FontSize="12" Foreground="#A1A1AA" Margin="0,10,0,0" TextWrapping="Wrap"/>
-                        </StackPanel>
-                    </Border>
+                <!-- Panel Derecho: Emparejados (con eliminación) y Reconocimiento Automático en LAN -->
+                <Grid Grid.Column="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="1*"/>
+                        <RowDefinition Height="1*"/>
+                    </Grid.RowDefinitions>
 
-                    <Border Background="#202026" CornerRadius="12" BorderBrush="#2E2E38" BorderThickness="1" Padding="18">
-                        <StackPanel>
-                            <TextBlock Text="Conectar mediante enlace QR" FontSize="15" FontWeight="SemiBold" Margin="0,0,0,6"/>
-                            <TextBlock Text="Si deseas emparejar esta PC contra otro equipo o teléfono, pega aquí su enlace gestoclip://pair:" FontSize="12" Foreground="#A1A1AA" TextWrapping="Wrap" Margin="0,0,0,10"/>
-                            <TextBox x:Name="PairUriInputBox" FontFamily="Consolas" FontSize="12" Padding="8,7" Margin="0,0,0,10"/>
-                            <Button Click="OnConnectByUri" HorizontalAlignment="Left" Padding="16,8" FontWeight="SemiBold">
-                                <TextBlock Text="🔗 Conectar y Emparejar"/>
-                            </Button>
-                        </StackPanel>
-                    </Border>
-                </StackPanel>
-            </Grid>
-
-            <!-- VISTA 3: DISPOSITIVOS EN RED -->
-            <Grid x:Name="ViewPeers" Visibility="Collapsed">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-
-                <DockPanel Grid.Row="0" Margin="0,0,0,14">
-                    <StackPanel>
-                        <TextBlock Text="Dispositivos Emparejados y Red Local" FontSize="22" FontWeight="Bold"/>
-                        <TextBlock Text="Equipos autorizados por certificado TLS y equipos detectados por balizas UDP (puerto 8766)." FontSize="12.5" Foreground="#A1A1AA" Margin="0,4,0,0"/>
-                    </StackPanel>
-                    <Button Click="OnRefreshPeersView" HorizontalAlignment="Right" VerticalAlignment="Center" Padding="14,8">
-                        <TextBlock Text="🔄 Actualizar listas"/>
-                    </Button>
-                </DockPanel>
-
-                <Grid Grid.Row="1">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="1*"/>
-                        <ColumnDefinition Width="1*"/>
-                    </Grid.ColumnDefinitions>
-
-                    <Border Grid.Column="0" Background="#202026" CornerRadius="12" BorderBrush="#2E2E38" BorderThickness="1" Padding="16" Margin="0,0,10,0">
+                    <Border Grid.Row="0" Background="#202026" CornerRadius="12" BorderBrush="#2E2E38" BorderThickness="1" Padding="16" Margin="0,0,0,10">
                         <DockPanel>
-                            <TextBlock DockPanel.Dock="Top" Text="🔒 Dispositivos Emparejados (Autorizados)" FontSize="14.5" FontWeight="SemiBold" Margin="0,0,0,10"/>
-                            <Button DockPanel.Dock="Bottom" Click="OnUnpairSelected" Padding="12,8" Margin="0,10,0,0" HorizontalAlignment="Right">
-                                <TextBlock Text="Desvincular seleccionado"/>
-                            </Button>
-                            <ListBox x:Name="PairedListBox" Background="#16161A" BorderBrush="#2E2E38" Foreground="#F4F4F5" FontSize="12.5"/>
+                            <DockPanel DockPanel.Dock="Top" Margin="0,0,0,8">
+                                <TextBlock Text="🔒 Equipos Emparejados (Reconocimiento Automático)" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                <Button Click="OnRefreshPeersView" Padding="10,4" HorizontalAlignment="Right" FontSize="11.5">
+                                    <TextBlock Text="🔄 Actualizar"/>
+                                </Button>
+                            </DockPanel>
+                            <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,8,0,0">
+                                <Button Click="OnUnpairSelected" Padding="12,6" Margin="0,0,8,0">
+                                    <TextBlock Text="🗑️ Desemparejar / Eliminar seleccionado"/>
+                                </Button>
+                                <Button Click="OnUnpairAll" Padding="12,6">
+                                    <TextBlock Text="Eliminar todos"/>
+                                </Button>
+                            </StackPanel>
+                            <ListBox x:Name="PairedListBox" Background="#16161A" BorderBrush="#2E2E38" Foreground="#F4F4F5" FontSize="12"/>
                         </DockPanel>
                     </Border>
 
-                    <Border Grid.Column="1" Background="#202026" CornerRadius="12" BorderBrush="#2E2E38" BorderThickness="1" Padding="16" Margin="10,0,0,0">
+                    <Border Grid.Row="1" Background="#202026" CornerRadius="12" BorderBrush="#2E2E38" BorderThickness="1" Padding="16">
                         <DockPanel>
-                            <TextBlock DockPanel.Dock="Top" Text="📡 Detectados ahora en Wi-Fi / LAN" FontSize="14.5" FontWeight="SemiBold" Margin="0,0,0,10"/>
-                            <ListBox x:Name="DiscoveredListBox" Background="#16161A" BorderBrush="#2E2E38" Foreground="#F4F4F5" FontSize="12.5"/>
+                            <TextBlock DockPanel.Dock="Top" Text="📡 Equipos Detectados Ahora en Wi-Fi / LAN (UDP 8766)" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,6"/>
+                            <TextBlock DockPanel.Dock="Top" Text="Si un equipo ya emparejado cambia de IP o vuelve a conectarse, GestoClip lo reconoce automáticamente por su certificado TLS." FontSize="11.5" Foreground="#A1A1AA" TextWrapping="Wrap" Margin="0,0,0,8"/>
+                            <ListBox x:Name="DiscoveredListBox" Background="#16161A" BorderBrush="#2E2E38" Foreground="#F4F4F5" FontSize="12"/>
                         </DockPanel>
                     </Border>
                 </Grid>
             </Grid>
 
-            <!-- VISTA 4: AJUSTES Y SISTEMA -->
+            <!-- VISTA 4: AJUSTES, MODO DE GESTO Y CARPETAS PRESELECCIONADAS -->
             <Grid x:Name="ViewSettings" Visibility="Collapsed">
-                <StackPanel MaxWidth="620" HorizontalAlignment="Left">
-                    <TextBlock Text="Ajustes y Sistema" FontSize="22" FontWeight="Bold" Margin="0,0,0,16"/>
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel MaxWidth="680" HorizontalAlignment="Left">
+                        <TextBlock Text="Ajustes, Modo de Gesto y Carpetas" FontSize="22" FontWeight="Bold" Margin="0,0,0,16"/>
 
-                    <Border Background="#202026" CornerRadius="12" BorderBrush="#2E2E38" BorderThickness="1" Padding="18" Margin="0,0,0,14">
-                        <StackPanel>
-                            <CheckBox x:Name="AutostartCheckBox" Click="OnAutostartToggled" FontSize="14" FontWeight="SemiBold" Content="Iniciar GestoClip automáticamente con Windows (minimizado en bandeja)"/>
-                            <TextBlock Text="Al cerrar esta ventana con la X, GestoClip sigue activo en el icono de la bandeja del sistema para responder al atajo Ctrl+Alt+G y recibir archivos de Android."
-                                       FontSize="12" Foreground="#A1A1AA" Margin="26,6,0,0" TextWrapping="Wrap"/>
+                        <!-- Configuración del comportamiento del gesto de puño -->
+                        <Border Background="#202026" CornerRadius="12" BorderBrush="#2E2E38" BorderThickness="1" Padding="18" Margin="0,0,0,14">
+                            <StackPanel>
+                                <TextBlock Text="¿Qué debe enviar el gesto de Puño Cerrado (✊) o el atajo Ctrl+Alt+S?" FontSize="15" FontWeight="SemiBold" Margin="0,0,0,10"/>
+                                <RadioButton x:Name="ModeMultiFilesRadio" Checked="OnGestureModeChanged" GroupName="GMode" FontSize="13.5" Margin="0,4,0,4"
+                                             Content="Enviar archivos copiados del Explorador (soporta múltiples archivos), texto/imagen o captura de pantalla"/>
+                                <RadioButton x:Name="ModeClipboardOnlyRadio" Checked="OnGestureModeChanged" GroupName="GMode" FontSize="13.5" Margin="0,4,0,4"
+                                             Content="Modo clásico: solo portapapeles de texto/imagen o captura del monitor activo"/>
+                                <RadioButton x:Name="ModeFoldersRadio" Checked="OnGestureModeChanged" GroupName="GMode" FontSize="13.5" Margin="0,4,0,10"
+                                             Content="Enviar automáticamente los archivos más recientes de mis carpetas preseleccionadas:"/>
+
+                                <DockPanel Margin="22,4,0,0">
+                                    <StackPanel DockPanel.Dock="Right" Margin="8,0,0,0">
+                                        <Button Click="OnAddPresetFolder" Padding="12,6" Margin="0,0,0,6">
+                                            <TextBlock Text="➕ Agregar carpeta..."/>
+                                        </Button>
+                                        <Button Click="OnRemovePresetFolder" Padding="12,6">
+                                            <TextBlock Text="➖ Quitar seleccionada"/>
+                                        </Button>
+                                    </StackPanel>
+                                    <ListBox x:Name="PresetFoldersListBox" Height="95" Background="#141418" BorderBrush="#2E2E38" Foreground="#E4E4E7" FontSize="12"/>
+                                </DockPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Guardado automático e Inicio con Windows -->
+                        <Border Background="#202026" CornerRadius="12" BorderBrush="#2E2E38" BorderThickness="1" Padding="18" Margin="0,0,0,14">
+                            <StackPanel>
+                                <CheckBox x:Name="AutoSaveCheckBox" Click="OnAutoSaveToggled" FontSize="13.5" FontWeight="SemiBold" Margin="0,0,0,10"
+                                          Content="Guardar automáticamente imágenes en Imágenes/GestoClip y archivos en Descargas/GestoClip al recibirlos"/>
+                                <CheckBox x:Name="AutostartCheckBox" Click="OnAutostartToggled" FontSize="13.5" FontWeight="SemiBold"
+                                          Content="Iniciar GestoClip automáticamente con Windows (minimizado en bandeja)"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Background="#202026" CornerRadius="12" BorderBrush="#2E2E38" BorderThickness="1" Padding="18" Margin="0,0,0,14">
+                            <StackPanel>
+                                <TextBlock Text="Identidad Criptográfica y Atajos Globales" FontSize="14.5" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                                <TextBlock x:Name="SettingsIdentityText" FontFamily="Consolas" FontSize="12" Foreground="#D4D4D8" TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </Border>
+
+                        <StackPanel Orientation="Horizontal">
+                            <Button Click="OnOpenAppDataFolder" Padding="14,9" Margin="0,0,10,0">
+                                <TextBlock Text="📂 Abrir carpeta de configuración (%APPDATA%\GestoClip)"/>
+                            </Button>
+                            <Button Click="OnQuitAppCompletely" Padding="14,9">
+                                <TextBlock Text="⏹ Cerrar GestoClip por completo"/>
+                            </Button>
                         </StackPanel>
-                    </Border>
-
-                    <Border Background="#202026" CornerRadius="12" BorderBrush="#2E2E38" BorderThickness="1" Padding="18" Margin="0,0,0,14">
-                        <StackPanel>
-                            <TextBlock Text="Identidad Criptográfica de este Equipo" FontSize="14.5" FontWeight="SemiBold" Margin="0,0,0,8"/>
-                            <TextBlock x:Name="SettingsIdentityText" FontFamily="Consolas" FontSize="12" Foreground="#D4D4D8" TextWrapping="Wrap"/>
-                        </StackPanel>
-                    </Border>
-
-                    <StackPanel Orientation="Horizontal">
-                        <Button Click="OnOpenAppDataFolder" Padding="14,9" Margin="0,0,10,0">
-                            <TextBlock Text="📂 Abrir carpeta de datos (%APPDATA%\GestoClip)"/>
-                        </Button>
-                        <Button Click="OnQuitAppCompletely" Padding="14,9">
-                            <TextBlock Text="⏹ Cerrar GestoClip por completo"/>
-                        </Button>
                     </StackPanel>
-                </StackPanel>
+                </ScrollViewer>
             </Grid>
 
         </Grid>

@@ -206,11 +206,33 @@ public sealed class SecureChannel : ISender, IDisposable
     }
 
     public async Task<int> SendToPeersAsync(Payload p, CancellationToken ct = default)
+        => await SendToSelectedPeersAsync(p, null, ct);
+
+    public async Task<int> SendToSelectedPeersAsync(
+        Payload p,
+        ISet<string>? targetFingerprints = null,
+        CancellationToken ct = default)
     {
+        if (p.Data.LongLength > Framing.MaxSize)
+            throw new InvalidOperationException($"El archivo '{p.Name}' supera el límite permitido de 512 MiB.");
+
         var sent = 0;
-        foreach (var peer in _peers().Where(x => _isPaired(x.PubKeyFp)))
+        var candidates = _peers().Where(x =>
+            _isPaired(x.PubKeyFp) &&
+            (targetFingerprints is null || targetFingerprints.Count == 0 || targetFingerprints.Contains(x.PubKeyFp)));
+
+        foreach (var peer in candidates)
         {
-            try { await SendAsync(peer, p, ct); sent++; } catch { }
+            try
+            {
+                await SendAsync(peer, p, ct);
+                sent++;
+            }
+            catch
+            {
+                if (targetFingerprints is not null && targetFingerprints.Count == 1)
+                    throw;
+            }
         }
         return sent;
     }

@@ -18,8 +18,8 @@
     <application
         android:allowBackup="true"
         android:label="GestoClip"
-        android:icon="@android:drawable/ic_menu_share"
-        android:roundIcon="@android:drawable/ic_menu_share"
+        android:icon="@drawable/ic_gestoclip_logo"
+        android:roundIcon="@drawable/ic_gestoclip_logo"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.DayNight.NoActionBar">
 
@@ -30,6 +30,17 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <!-- Recibir archivos, fotos o texto desde el menú Compartir de Android -->
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="*/*" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.SEND_MULTIPLE" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="*/*" />
             </intent-filter>
         </activity>
 
